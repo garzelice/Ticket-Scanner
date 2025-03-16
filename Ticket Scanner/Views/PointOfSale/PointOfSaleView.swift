@@ -27,66 +27,43 @@ struct PointOfSale: View {
 	var body: some View {
 		NavigationStack {
 			ScrollView{
-				LazyVGrid(columns: viewModel.adaptiveColumn, spacing: 20) {
-					ForEach(viewModel.viewConfig) { product in
-						VStack(alignment: .leading, spacing: -8) {
-							Text(product.product.title ?? "No Title")
-								.font(.caption2)
-								.textCase(.uppercase)
-								.foregroundStyle(Color.gray)
-								.padding()
-							VStack(alignment: .leading, spacing: 0) {
-								AsyncImage(url: URL(string: product.product.images?.first?.url ?? "")){ image in
-									image.resizable()
-										.scaledToFill()
-								} placeholder: {
-									Color.red
-								}
-								.frame(height: 128)
-								.clipShape(.rect(cornerRadius: 0))
-								
-								VStack(alignment: .leading, spacing: 4) {
-									Text("Nothing Selected")
-										.monospaced()
-									
-									Button {
-										viewModel.openProduct = product
-									} label: {
-										Text("Select Variant")
-									}
-									.buttonStyle(.bordered)
-								}
-								.padding()
-							}
-							//							.frame(width: .infinity)
-							.background(Color.gray.quinary)
-							.clipShape(.rect(cornerRadius: 12))
-						}
-					}
+				SalesChannelSection()
+					.environment(viewModel)
+				VStack {
+					Text("Add Sales Channel")
+						.font(.caption2)
+						.textCase(.uppercase)
+						.foregroundStyle(Color.gray)
+						.padding()
 					Button {
-						viewModel.itemSelectOpen = true
+						viewModel.salesChannelSelectOpen = true
 					} label: {
-						Text("Add new item")
+						Image(systemName: "plus.circle")
+							.frame(maxWidth: .infinity)
 					}
+					.buttonStyle(LargeButton())
+					Spacer()
 				}
 			}
-			.sheet(isPresented: $viewModel.itemSelectOpen) {
-				Form {
-					ForEach(medusa.products) { product in
-						HStack {
-							Text(product.title ?? "No Title")
-							Spacer()
-							Image(systemName: viewConfigHasProduct(viewConfig: viewModel.viewConfig, product: product) ? "checkmark.circle.fill" : "circle")
-						}
-						.onTapGesture {
-							if viewConfigHasProduct(viewConfig: viewModel.viewConfig, product: product) {
-								if let index = viewModel.viewConfig.firstIndex(where: { $0.product.id == product.id }) {
-									viewModel.viewConfig.remove(at: index)
-								}
-								return
+			.sheet(isPresented: $viewModel.salesChannelSelectOpen) {
+				NavigationView {
+					List(medusa.salesChannels) { salesChannel in
+						Label(salesChannel.name ?? "No Sales Channel Name", systemImage: viewModel.selectedSalesChannels.contains(where: {$0.salesChannel == salesChannel}) ? "checkmark.circle.fill" : "circle")
+							.onTapGesture {
+								viewModel.toggleSalesChannel(salesChannel: salesChannel, products: medusa.products.filter { product in
+									guard let productSalesChannels = product.sales_channels else {
+										return false
+									}
+									return productSalesChannels.contains(where: {$0 == salesChannel})
+								})
 							}
-							viewModel.viewConfig.append(ViewConfig(product: product, selectedVariants: []))
-						}
+//							.filter {
+//								$0.sales_channels?.contains(where: {$0 == salesChannel})
+//							})
+					}
+					.navigationTitle("Select Sales Channel")
+					.toolbar {
+						EditButton()
 					}
 				}
 				.presentationDetents([.medium, .large])
@@ -100,8 +77,9 @@ struct PointOfSale: View {
 			.navigationTitle("Point of Sale")
 			.onAppear {
 				medusa.getProducts()
+				medusa.getSalesChannels()
 			}
-			.background(.background.secondary)
+			.background(Color(UIColor.systemGroupedBackground))
 		}
 	}
 }

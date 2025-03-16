@@ -134,4 +134,45 @@ class APIService {
 			completion(.success(products))
 		}.resume()
 	}
+	
+	func getSalesChannels(server: Server, completion: @escaping (Result<[Sales_channels], Authentication.AuthenticationError>) -> Void) {
+		guard let urlString = server.url else {
+			completion(.failure(.custom(errorMessage: "No Medusa URL Stored")))
+			return
+		}
+		
+		guard let url = URL(string: urlString) else {
+			completion(.failure(.custom(errorMessage: "Couldn’t parse stored URL, it’s probably malformed")))
+			return
+		}
+		
+		guard let token = server.token else {
+			completion(.failure(.custom(errorMessage: "No token available")))
+			return
+		}
+		
+		var request = URLRequest(url: url.appending(path: "/admin/sales-channels"))
+		request.httpMethod = "GET"
+		request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+		
+		URLSession.shared.dataTask(with: request) { (data, response, error) in
+			guard let data = data, error == nil else {
+				completion(.failure(.custom(errorMessage: "No Response from Medusa")))
+				return
+			}
+			
+			guard let salesChannelResponse = try? JSONDecoder().decode(SalesChannelReponse.self, from: data) else {
+				completion(.failure(.custom(errorMessage: "Invalid Product Schema")))
+				return
+			}
+			
+			guard let salesChannels = salesChannelResponse.sales_channels else {
+				completion(.failure(.custom(errorMessage: "No Sales Channels")))
+				return
+			}
+			
+			completion(.success(salesChannels))
+		}.resume()
+	}
 }

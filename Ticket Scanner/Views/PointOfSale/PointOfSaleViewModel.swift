@@ -38,6 +38,18 @@ func getVariantById(viewConfig: ViewConfig, id: String) -> SelectedVariant? {
 	return viewConfig.selectedVariants.first(where: { $0.variant == id })
 }
 
+struct SelectedSalesChannel: Identifiable {
+	var id: String
+	var salesChannel: Sales_channels
+	var products: [ViewConfig]
+	
+	init(salesChannel: Sales_channels, products: [ViewConfig]) {
+		self.id = salesChannel.id
+		self.salesChannel = salesChannel
+		self.products = products
+	}
+}
+
 @Observable
 class PointOfSaleViewModel {
 	var numberOfTickets = 1
@@ -49,8 +61,10 @@ class PointOfSaleViewModel {
 	//	@State var basket = nil
 	var viewConfig: [ViewConfig] = []
 	
+	var selectedSalesChannels: [SelectedSalesChannel] = []
+	
 	var openProduct: ViewConfig? = nil
-	var itemSelectOpen: Bool = false
+	var salesChannelSelectOpen: Bool = false
 	
 	func addProductToCard(variantId: String) -> Void {
 		guard let productIndex = self.viewConfig.firstIndex(where: { $0.product.id == self.openProduct?.id }) else {
@@ -58,16 +72,10 @@ class PointOfSaleViewModel {
 			return
 		}
 		
-		print("---------")
-		print(variantId)
-		print(self.viewConfig[productIndex].selectedVariants)
 		if let existingVariantIndex = self.viewConfig[productIndex].selectedVariants.firstIndex(where: { $0.variant == variantId }) {
-			print("Adding plus one to existingVariant")
 			self.viewConfig[productIndex].selectedVariants[existingVariantIndex].amount += 1
 		} else {
-			print("Adding new Variant")
 			self.viewConfig[productIndex].selectedVariants.append(SelectedVariant(variant: variantId, amount: 1))
-			print(self.viewConfig[productIndex].selectedVariants)
 		}
 		
 		// Update openProduct to ensure UI refreshes
@@ -83,6 +91,16 @@ class PointOfSaleViewModel {
 		}
 		
 		return viewConfig[productIndex].selectedVariants[variantIndex].amount
+	}
+	
+	func toggleSalesChannel(salesChannel: Sales_channels, products: [Products]) {
+		if selectedSalesChannels.contains(where: {$0.salesChannel == salesChannel}) {
+			selectedSalesChannels.removeAll(where: {$0.salesChannel == salesChannel})
+		} else {
+			selectedSalesChannels.append(SelectedSalesChannel(salesChannel: salesChannel, products: products.map { product in
+				return ViewConfig(product: product, selectedVariants: [])
+			}))
+		}
 	}
 	
 	init() {

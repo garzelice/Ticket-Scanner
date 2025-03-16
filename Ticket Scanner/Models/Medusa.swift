@@ -17,6 +17,7 @@ class Medusa {
 	var server: Server = Server()
 	var user: User = User()
 	var products: [Products] = []
+	var salesChannels: [Sales_channels] = []
 	
 	// Add API service as a property
 	private let apiService = APIService()
@@ -44,6 +45,17 @@ class Medusa {
 	func saveUrl(url: String) {
 		self.server.url = url
 		UserDefaults.standard.set(url, forKey: "medusaUrl")
+	}
+	
+	func getSalesChannels() {
+		apiService.getSalesChannels(server: self.server) { (result: Result<[Sales_channels], Authentication.AuthenticationError>) in
+			switch result {
+			case .success(let salesChannels):
+				self.salesChannels = salesChannels
+			case .failure(let err):
+				print(err.localizedDescription)
+			}
+		}
 	}
 	
 	func getProducts() {

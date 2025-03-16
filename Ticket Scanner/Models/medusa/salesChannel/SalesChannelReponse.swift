@@ -12,38 +12,26 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 */
 
 import Foundation
-struct Sales_channels : Codable {
-	let id : String?
-	let name : String?
-	let description : String?
-	let is_disabled : Bool?
-	let metadata : String?
-	let created_at : String?
-	let updated_at : String?
-	let deleted_at : String?
+struct SalesChannelReponse : Codable {
+	let sales_channels : [Sales_channels]?
+	let count : Int?
+	let offset : Int?
+	let limit : Int?
 
 	enum CodingKeys: String, CodingKey {
 
-		case id = "id"
-		case name = "name"
-		case description = "description"
-		case is_disabled = "is_disabled"
-		case metadata = "metadata"
-		case created_at = "created_at"
-		case updated_at = "updated_at"
-		case deleted_at = "deleted_at"
+		case sales_channels = "sales_channels"
+		case count = "count"
+		case offset = "offset"
+		case limit = "limit"
 	}
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
-		id = try values.decodeIfPresent(String.self, forKey: .id)
-		name = try values.decodeIfPresent(String.self, forKey: .name)
-		description = try values.decodeIfPresent(String.self, forKey: .description)
-		is_disabled = try values.decodeIfPresent(Bool.self, forKey: .is_disabled)
-		metadata = try values.decodeIfPresent(String.self, forKey: .metadata)
-		created_at = try values.decodeIfPresent(String.self, forKey: .created_at)
-		updated_at = try values.decodeIfPresent(String.self, forKey: .updated_at)
-		deleted_at = try values.decodeIfPresent(String.self, forKey: .deleted_at)
+		sales_channels = try values.decodeIfPresent([Sales_channels].self, forKey: .sales_channels)
+		count = try values.decodeIfPresent(Int.self, forKey: .count)
+		offset = try values.decodeIfPresent(Int.self, forKey: .offset)
+		limit = try values.decodeIfPresent(Int.self, forKey: .limit)
 	}
 
 }
