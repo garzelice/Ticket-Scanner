@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct ProductsView: View {
+	@Environment(PointOfSaleViewModel.self) private var viewModel
+	
 	let products: [ViewConfig]
-    var body: some View {
+	var body: some View {
 		ForEach(products) { config in
 			VStack(alignment: .leading, spacing: -8) {
 				Text(config.product.title ?? "No Title")
@@ -33,9 +35,9 @@ struct ProductsView: View {
 							.padding(.horizontal, 12)
 						
 						Button {
-							//						viewModel.openProduct = product
+							viewModel.openProduct = config
 						} label: {
-							Text("Select Variant")
+							Text("Select")
 								.frame(maxWidth: .infinity)
 								.font(.system(size: 17))
 						}
@@ -49,7 +51,7 @@ struct ProductsView: View {
 				.clipShape(.rect(cornerRadius: 12))
 			}
 		}
-    }
+	}
 }
 
 #Preview {

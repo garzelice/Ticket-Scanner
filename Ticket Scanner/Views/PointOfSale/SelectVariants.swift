@@ -26,11 +26,11 @@ struct SelectVariants: View {
 							
 						} onIncrement: {
 							if let variantId = variant.id {
-								viewModel.addProductToCard(variantId: variantId)
+								viewModel.addProductToCard(variantId: variantId	)
 							}
 						} onDecrement: {
 							if let variantId = variant.id {
-								viewModel.addProductToCard(variantId: variantId)
+//								viewModel.addProductToCard(variantId: variantId)
 							}
 						}
 						.frame(width: 75)

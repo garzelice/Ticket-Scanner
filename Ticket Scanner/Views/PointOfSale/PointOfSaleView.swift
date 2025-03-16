@@ -57,14 +57,8 @@ struct PointOfSale: View {
 									return productSalesChannels.contains(where: {$0 == salesChannel})
 								})
 							}
-//							.filter {
-//								$0.sales_channels?.contains(where: {$0 == salesChannel})
-//							})
 					}
 					.navigationTitle("Select Sales Channel")
-					.toolbar {
-						EditButton()
-					}
 				}
 				.presentationDetents([.medium, .large])
 				.presentationDragIndicator(.visible)
