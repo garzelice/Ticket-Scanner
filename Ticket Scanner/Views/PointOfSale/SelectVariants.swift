@@ -10,8 +10,8 @@ import SwiftUI
 struct SelectVariants: View {
 	@Environment(PointOfSaleViewModel.self) private var viewModel
 	
-	func getCurrent(variantId: String) -> Int {
-		return viewModel.getVariantAmount(variantId: variantId)
+	func getCurrent(variant: Variants) -> Int {
+		return viewModel.getVariantAmount(variant: variant)
 	}
 	
     var body: some View {
@@ -21,12 +21,13 @@ struct SelectVariants: View {
 					HStack {
 						Text(variant.title ?? "No Title")
 						Spacer()
-						Text("\(getCurrent(variantId: variant.id ?? ""))")
+						Text("\(getCurrent(variant: variant))")
 						Stepper {
 							
 						} onIncrement: {
+							viewModel.addProductToCard(variant: variant)
 							if let variantId = variant.id {
-								viewModel.addProductToCard(variantId: variantId	)
+								
 							}
 						} onDecrement: {
 							if let variantId = variant.id {
@@ -46,7 +47,7 @@ struct SelectVariants: View {
 }
 
 #Preview {
-	@Previewable @State var viewModel = PointOfSaleViewModel(viewConfig: [ViewConfig(product: MockData().products.first!, selectedVariants: [])], openProduct: ViewConfig(product: MockData().products.first!, selectedVariants: []))
+	@Previewable @State var viewModel = PointOfSaleViewModel(openProduct: ViewConfig(product: MockData().products.first!, selectedVariants: []))
 	
 	SelectVariants()
 		.environment(viewModel)

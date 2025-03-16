@@ -12,7 +12,11 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 */
 
 import Foundation
-struct Variants : Codable, Identifiable {
+struct Variants : Codable, Identifiable, Equatable {
+	static func == (lhs: Variants, rhs: Variants) -> Bool {
+		return lhs.id == rhs.id
+	}
+	
 	let id : String?
 	let title : String?
 	let sku : String?

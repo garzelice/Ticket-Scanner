@@ -8,9 +8,17 @@
 import SwiftUI
 import Observation
 
-struct SelectedVariant {
-	var variant: String
+struct SelectedVariant: Identifiable {
+	var id: String
+	
+	var variant: Variants
 	var amount: Int
+	
+	init(variant: Variants, amount: Int) {
+		self.id = variant.id ?? UUID().uuidString
+		self.variant = variant
+		self.amount = amount
+	}
 }
 
 struct ViewConfig: Identifiable {
@@ -35,7 +43,7 @@ func viewConfigHasProduct(viewConfig: [ViewConfig], product: Products) -> Bool {
 }
 
 func getVariantById(viewConfig: ViewConfig, id: String) -> SelectedVariant? {
-	return viewConfig.selectedVariants.first(where: { $0.variant == id })
+	return viewConfig.selectedVariants.first(where: { $0.variant.id == id })
 }
 
 struct SelectedSalesChannel: Identifiable {
@@ -59,14 +67,13 @@ class PointOfSaleViewModel {
 	]
 	
 	//	@State var basket = nil
-	var viewConfig: [ViewConfig] = []
 	
 	var selectedSalesChannels: [SelectedSalesChannel] = []
 	
 	var openProduct: ViewConfig? = nil
 	var salesChannelSelectOpen: Bool = false
 	
-	func addProductToCard(variantId: String) -> Void {
+	func addProductToCard(variant: Variants) -> Void {
 		// Get the product in all Sales-Channels, in case it is in multiple
 		guard let openProductId = openProduct?.id else {
 			print("No open product")
@@ -82,10 +89,10 @@ class PointOfSaleViewModel {
 				updatedVariants = product.selectedVariants
 				
 				// Update or add the variant
-				if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variantId }) {
+				if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
 					updatedVariants[existingVariantIndex].amount += 1
 				} else {
-					updatedVariants.append(SelectedVariant(variant: variantId, amount: 1))
+					updatedVariants.append(SelectedVariant(variant: variant, amount: 1))
 				}
 				
 				break // Only update from the first instance found
@@ -111,7 +118,7 @@ class PointOfSaleViewModel {
 	}
 	
 	// Helper method to get variant amount directly from selectedSalesChannels
-	func getVariantAmount(variantId: String) -> Int {
+	func getVariantAmount(variant: Variants) -> Int {
 		guard let openProductId = openProduct?.id else {
 			return 0
 		}
@@ -119,7 +126,7 @@ class PointOfSaleViewModel {
 		// Since all instances are synchronized, we only need to check the first instance
 		for salesChannel in selectedSalesChannels {
 			if let product = salesChannel.products.first(where: { $0.id == openProductId }),
-			   let variant = product.selectedVariants.first(where: { $0.variant == variantId }) {
+			   let variant = product.selectedVariants.first(where: { $0.variant == variant }) {
 				// Return the amount from the first instance found
 				return variant.amount
 			}
@@ -142,8 +149,7 @@ class PointOfSaleViewModel {
 		
 	}
 	
-	init(viewConfig: [ViewConfig], openProduct: ViewConfig?) {
-		self.viewConfig = viewConfig
+	init(openProduct: ViewConfig?) {
 		self.openProduct = openProduct
 	}
 }

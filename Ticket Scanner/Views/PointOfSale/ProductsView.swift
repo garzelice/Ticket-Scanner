@@ -30,9 +30,16 @@ struct ProductsView: View {
 					.clipShape(.rect(cornerRadius: 0))
 					
 					VStack(alignment: .leading, spacing: 4) {
-						Text("Nothing Selected")
-							.monospaced()
-							.padding(.horizontal, 12)
+						if config.selectedVariants.isEmpty {
+							Text("Nothing Selected")
+								.monospaced()
+								.padding(.horizontal, 12)
+						} else {
+							ForEach(config.selectedVariants) { variantConfig in
+								Text("\(variantConfig.amount) × \(variantConfig.variant.title ?? "No Variant Title")")
+							}
+						}
+						
 						
 						Button {
 							viewModel.openProduct = config
