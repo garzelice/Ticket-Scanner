@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct ScanView: View {
-	@Environment(Medusa.self) private var medusa
-		
+    @Environment(Medusa.self) private var medusa
+
     var body: some View {
-		NavigationStack {
-			Text("TODO: Everything")
-			.navigationTitle("Scan Tickets")
-		}
+        NavigationStack {
+            Text("TODO: Everything")
+                .navigationTitle("Scan Tickets")
+        }
     }
 }
 
 #Preview {
-	@Previewable @State var medusa = Medusa()
+    @Previewable @State var medusa = Medusa()
     ScanView()
-		.environment(medusa)
+        .environment(medusa)
 }

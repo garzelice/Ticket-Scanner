@@ -5,14 +5,14 @@
 //  Created by Eric Wätke on 08.03.25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct Ticket_ScannerApp: App {
-	@State private var medusa = Medusa()
-	@StateObject var authentication = Authentication()
-	
+    @State private var medusa = Medusa()
+    @StateObject var authentication = Authentication()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,18 +25,16 @@ struct Ticket_ScannerApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-	
-	
 
     var body: some Scene {
         WindowGroup {
-			if medusa.isAuthenticated {
-				ContentView()
-					.environment(medusa)
-			} else {
-				LoginView()
-					.environment(medusa)
-			}
+            if medusa.isAuthenticated {
+                ContentView()
+                    .environment(medusa)
+            } else {
+                LoginView()
+                    .environment(medusa)
+            }
         }
         .modelContainer(sharedModelContainer)
     }

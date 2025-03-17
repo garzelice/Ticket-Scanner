@@ -2022,6 +2022,5 @@ let JSON = """
 """
 
 struct MockData {
-	
-	var products: [Product] = try! JSONDecoder().decode([Product].self, from: JSON.data(using: .utf8)!)
+    var products: [Product] = try! JSONDecoder().decode([Product].self, from: JSON.data(using: .utf8)!)
 }
