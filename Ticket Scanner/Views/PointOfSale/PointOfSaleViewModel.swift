@@ -21,7 +21,11 @@ struct SelectedVariant: Identifiable {
     }
 }
 
-struct ViewConfig: Identifiable {
+struct ViewConfig: Identifiable, Equatable {
+	static func == (lhs: ViewConfig, rhs: ViewConfig) -> Bool {
+		return lhs.id == lhs.id
+	}
+	
     var id: String
     var product: Product
     var selectedVariants: [SelectedVariant]
@@ -82,7 +86,7 @@ class PointOfSaleViewModel {
     var numberOfTickets = 1
 
     let adaptiveColumn = [
-        GridItem(.adaptive(minimum: 150)),
+		GridItem(.adaptive(minimum: 150), alignment: .top),
     ]
 
     //	@State var basket = nil
@@ -92,19 +96,15 @@ class PointOfSaleViewModel {
     var openProduct: ViewConfig?
     var salesChannelSelectOpen: Bool = false
 
-    func addProductToCard(variant: Variants) {
+	func addProductToCard(config: ViewConfig, variant: Variants) {
         // Get the product in all Sales-Channels, in case it is in multiple
-        guard let openProductId = openProduct?.id else {
-            print("No open product")
-            return
-        }
 
         var updatedVariants: [SelectedVariant] = []
 
         // First, determine what the updated variants should be by looking at the first instance
         // of the product across all sales channels
         for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0.id == openProductId }) {
+            if let product = salesChannel.products.first(where: { $0 == config }) {
                 updatedVariants = product.selectedVariants
 
                 // Update or add the variant
@@ -122,7 +122,7 @@ class PointOfSaleViewModel {
 
         // Now apply these updated variants to all instances of the product across all sales channels
         for salesChannelIndex in 0 ..< selectedSalesChannels.count {
-            if let productIndex = selectedSalesChannels[salesChannelIndex].products.firstIndex(where: { $0.id == openProductId }) {
+            if let productIndex = selectedSalesChannels[salesChannelIndex].products.firstIndex(where: { $0 == config }) {
                 selectedSalesChannels[salesChannelIndex].products[productIndex].selectedVariants = updatedVariants
 
                 // Save the updated product for refreshing UI
@@ -130,21 +130,19 @@ class PointOfSaleViewModel {
             }
         }
 
-        // Update openProduct to ensure UI refreshes
-        if let updatedProduct = updatedOpenProduct {
-            openProduct = updatedProduct
-        }
+		if openProduct != nil {
+			// Update openProduct to ensure UI refreshes
+			if let updatedProduct = updatedOpenProduct {
+				openProduct = updatedProduct
+			}
+		}
     }
 
     // Helper method to get variant amount directly from selectedSalesChannels
-    func getVariantAmount(variant: Variants) -> Int {
-        guard let openProductId = openProduct?.id else {
-            return 0
-        }
-
+	func getVariantAmount(config: ViewConfig, variant: Variants) -> Int {
         // Since all instances are synchronized, we only need to check the first instance
         for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0.id == openProductId }),
+            if let product = salesChannel.products.first(where: { $0 == config }),
                let variant = product.selectedVariants.first(where: { $0.variant == variant })
             {
                 // Return the amount from the first instance found

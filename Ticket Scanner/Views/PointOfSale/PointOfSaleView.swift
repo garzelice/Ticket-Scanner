@@ -100,7 +100,7 @@ struct PointOfSale: View {
                 medusa.getProducts()
                 medusa.getSalesChannels()
             }
-            .background(Color(UIColor.systemGroupedBackground))
+			.background(Color(UIColor.secondarySystemBackground))
         }
     }
 }
