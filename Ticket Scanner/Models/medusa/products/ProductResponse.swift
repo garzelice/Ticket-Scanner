@@ -13,7 +13,7 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 
 import Foundation
 struct ProductResponse : Codable {
-	let products : [Products]?
+	let products : [Product]?
 	let count : Int?
 	let offset : Int?
 	let limit : Int?
@@ -28,7 +28,7 @@ struct ProductResponse : Codable {
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
-		products = try values.decodeIfPresent([Products].self, forKey: .products)
+		products = try values.decodeIfPresent([Product].self, forKey: .products)
 		count = try values.decodeIfPresent(Int.self, forKey: .count)
 		offset = try values.decodeIfPresent(Int.self, forKey: .offset)
 		limit = try values.decodeIfPresent(Int.self, forKey: .limit)

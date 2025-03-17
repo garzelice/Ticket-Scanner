@@ -1,52 +1,38 @@
-/* 
-Copyright (c) 2025 Swift Models Generated from JSON powered by http://www.json4swift.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-For support, please feel free to contact me at https://www.linkedin.com/in/syedabsar
-
-*/
-
 import Foundation
-struct Products : Codable, Identifiable {
-	let id : String
-	let title : String?
-	let subtitle : String?
-	let status : String?
-	let external_id : String?
-	let description : String?
-	let handle : String?
-	let is_giftcard : Bool?
-	let discountable : Bool?
-	let thumbnail : String?
-	let collection_id : String?
-	let type_id : String?
-	let weight : String?
-	let length : String?
-	let height : String?
-	let width : String?
-	let hs_code : String?
-	let origin_country : String?
-	let mid_code : String?
-	let material : String?
-	let created_at : String?
-	let updated_at : String?
-	let deleted_at : String?
-	let metadata : String?
-	let type : String?
-	let collection : String?
-	let options : [Options]?
-	let tags : [String]?
-	let images : [Images]?
-	let variants : [Variants]?
-	let sales_channels : [Sales_channels]?
+struct Product: Codable, Identifiable {
+	let id: String
+	let title: String?
+	let subtitle: String?
+	let status: String?
+	let external_id: String?
+	let description: String?
+	let handle: String?
+	let is_giftcard: Bool?
+	let discountable: Bool?
+	let thumbnail: String?
+	let collection_id: String?
+	let type_id: String?
+	let weight: String?
+	let length: String?
+	let height: String?
+	let width: String?
+	let hs_code: String?
+	let origin_country: String?
+	let mid_code: String?
+	let material: String?
+	let created_at: String?
+	let updated_at: String?
+	let deleted_at: String?
+	let metadata: String?
+	let type: String?
+	let collection: String?
+	let options: [Options]?
+	let tags: [String]?
+	let images: [Images]?
+	let variants: [Variants]?
+	let sales_channels: [Sales_channels]?
 
 	enum CodingKeys: String, CodingKey {
-
 		case id = "id"
 		case title = "title"
 		case subtitle = "subtitle"
@@ -78,6 +64,40 @@ struct Products : Codable, Identifiable {
 		case images = "images"
 		case variants = "variants"
 		case sales_channels = "sales_channels"
+	}
+	
+	init(id: String, title: String?, subtitle: String?, status: String?, external_id: String?, description: String?, handle: String?, is_giftcard: Bool?, discountable: Bool?, thumbnail: String?, collection_id: String?, type_id: String?, weight: String?, length: String?, height: String?, width: String?, hs_code: String?, origin_country: String?, mid_code: String?, material: String?, created_at: String?, updated_at: String?, deleted_at: String?, metadata: String?, type: String?, collection: String?, options: [Options]?, tags: [String]?, images: [Images]?, variants: [Variants]?, sales_channels: [Sales_channels]?) {
+		self.id = id
+		self.title = title
+		self.subtitle = subtitle
+		self.status = status
+		self.external_id = external_id
+		self.description = description
+		self.handle = handle
+		self.is_giftcard = is_giftcard
+		self.discountable = discountable
+		self.thumbnail = thumbnail
+		self.collection_id = collection_id
+		self.type_id = type_id
+		self.weight = weight
+		self.length = length
+		self.height = height
+		self.width = width
+		self.hs_code = hs_code
+		self.origin_country = origin_country
+		self.mid_code = mid_code
+		self.material = material
+		self.created_at = created_at
+		self.updated_at = updated_at
+		self.deleted_at = deleted_at
+		self.metadata = metadata
+		self.type = type
+		self.collection = collection
+		self.options = options
+		self.tags = tags
+		self.images = images
+		self.variants = variants
+		self.sales_channels = sales_channels
 	}
 
 	init(from decoder: Decoder) throws {
@@ -115,4 +135,7 @@ struct Products : Codable, Identifiable {
 		sales_channels = try values.decodeIfPresent([Sales_channels].self, forKey: .sales_channels)
 	}
 
+	func example() -> Product {
+		return Product(id: UUID().uuidString, title: <#T##String?#>, subtitle: <#T##String?#>, status: <#T##String?#>, external_id: <#T##String?#>, description: <#T##String?#>, handle: <#T##String?#>, is_giftcard: <#T##Bool?#>, discountable: <#T##Bool?#>, thumbnail: <#T##String?#>, collection_id: <#T##String?#>, type_id: <#T##String?#>, weight: <#T##String?#>, length: <#T##String?#>, height: <#T##String?#>, width: <#T##String?#>, hs_code: <#T##String?#>, origin_country: <#T##String?#>, mid_code: <#T##String?#>, material: <#T##String?#>, created_at: <#T##String?#>, updated_at: <#T##String?#>, deleted_at: <#T##String?#>, metadata: <#T##String?#>, type: <#T##String?#>, collection: <#T##String?#>, options: <#T##[Options]?#>, tags: <#T##[String]?#>, images: <#T##[Images]?#>, variants: <#T##[Variants]?#>, sales_channels: <#T##[Sales_channels]?#>)
+	}
 }

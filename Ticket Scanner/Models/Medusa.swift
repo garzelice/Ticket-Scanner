@@ -16,7 +16,7 @@ class Medusa {
 	
 	var server: Server = Server()
 	var user: User = User()
-	var products: [Products] = []
+	var products: [Product] = []
 	var salesChannels: [Sales_channels] = []
 	
 	// Add API service as a property
@@ -59,7 +59,7 @@ class Medusa {
 	}
 	
 	func getProducts() {
-		apiService.getProducts(server: self.server) { (result: Result<[Products], Authentication.AuthenticationError>) in
+		apiService.getProducts(server: self.server) { (result: Result<[Product], Authentication.AuthenticationError>) in
 			switch result {
 			case .success(let products):
 				self.products = products
@@ -90,7 +90,7 @@ class Medusa {
 		}
 	}
 	
-	init(user: User, server: Server, products: [Products]) {
+	init(user: User, server: Server, products: [Product]) {
 		self.isAuthenticated = true
 		self.user = user
 		self.server = server

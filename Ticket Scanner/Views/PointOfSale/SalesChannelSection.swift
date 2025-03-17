@@ -23,5 +23,19 @@ struct SalesChannelSection: View {
 }
 
 #Preview {
-    SalesChannelSection()
+	@Previewable @State var viewModel = PointOfSaleViewModel()
+	@Previewable @State var medusa = Medusa(user: User(), server: Server(), products: MockData().products)
+	
+	SalesChannelSection()
+		.environment(viewModel)
+		.environment(medusa)
+		.onAppear{
+			medusa.getProducts()
+			medusa.getSalesChannels()
+			viewModel.selectedSalesChannels = medusa.salesChannels.map({ salesChannel in
+				return SelectedSalesChannel(salesChannel: salesChannel, products: medusa.products.map({ product in
+					return ViewConfig(product: product, selectedVariants: [])
+				}))
+			})
+		}
 }

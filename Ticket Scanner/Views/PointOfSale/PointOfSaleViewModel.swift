@@ -23,17 +23,17 @@ struct SelectedVariant: Identifiable {
 
 struct ViewConfig: Identifiable {
 	var id: String
-	var product: Products
+	var product: Product
 	var selectedVariants: [SelectedVariant]
 	
-	init(product: Products, selectedVariants: [SelectedVariant]) {
+	init(product: Product, selectedVariants: [SelectedVariant]) {
 		self.id = product.id
 		self.product = product
 		self.selectedVariants = selectedVariants
 	}
 }
 
-func viewConfigHasProduct(viewConfig: [ViewConfig], product: Products) -> Bool {
+func viewConfigHasProduct(viewConfig: [ViewConfig], product: Product) -> Bool {
 	for config in viewConfig {
 		if config.product.id == product.id {
 			return true
@@ -135,7 +135,7 @@ class PointOfSaleViewModel {
 		return 0
 	}
 	
-	func toggleSalesChannel(salesChannel: Sales_channels, products: [Products]) {
+	func toggleSalesChannel(salesChannel: Sales_channels, products: [Product]) {
 		if selectedSalesChannels.contains(where: {$0.salesChannel == salesChannel}) {
 			selectedSalesChannels.removeAll(where: {$0.salesChannel == salesChannel})
 		} else {

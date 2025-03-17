@@ -62,5 +62,8 @@ struct ProductsView: View {
 }
 
 #Preview {
+	@Previewable @State var viewModel = PointOfSaleViewModel()
+
 	ProductsView(products: [ViewConfig(product: MockData().products.first!, selectedVariants: [])])
+		.environment(viewModel)
 }
