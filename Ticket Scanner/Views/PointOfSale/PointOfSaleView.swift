@@ -80,16 +80,44 @@ struct PointOfSale: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-				VStack {
-					SalesChannelSection()
-						.environment(viewModel)
-					
-					AddSalesChannelButton()
-						.environment(viewModel)
+			ZStack(alignment: .bottom) {
+				ScrollView {
+					VStack {
+						SalesChannelSection()
+							.environment(viewModel)
+						
+						AddSalesChannelButton()
+							.environment(viewModel)
+					}
+					.padding()
 				}
-				.padding()
-            }
+				if viewModel.itemsInCart {
+					VStack(alignment: .leading) {
+						Text("Payment Method")
+							.font(.title2)
+						HStack {
+							Button {
+								
+							} label: {
+								Label("Cash", systemImage: "banknote")
+									.frame(maxWidth: .infinity)
+							}
+							.buttonStyle(LargeButton())
+							Button {
+								
+							} label: {
+								Label("Creditcard", systemImage: "banknote")
+									.frame(maxWidth: .infinity)
+							}
+							.buttonStyle(LargeButton())
+						}
+					}
+					.padding()
+					.background(Color(UIColor.systemBackground))
+					.frame(maxWidth: .infinity)
+					.transition(.move(edge: .bottom))
+				}
+			}
             .sheet(isPresented: $viewModel.salesChannelSelectOpen) {
                 SalesChannelSelectionSheet(isPresented: $viewModel.salesChannelSelectOpen)
                     .environment(viewModel)

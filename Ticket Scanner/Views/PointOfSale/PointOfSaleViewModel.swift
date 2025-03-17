@@ -89,8 +89,7 @@ class PointOfSaleViewModel {
 		GridItem(.adaptive(minimum: 150), alignment: .top),
     ]
 
-    //	@State var basket = nil
-
+	var itemsInCart = false
     var selectedSalesChannels: [SelectedSalesChannel] = []
 
     var openProduct: ViewConfig?
@@ -135,6 +134,10 @@ class PointOfSaleViewModel {
 			if let updatedProduct = updatedOpenProduct {
 				openProduct = updatedProduct
 			}
+		}
+		
+		withAnimation {
+			itemsInCart = true
 		}
     }
 
