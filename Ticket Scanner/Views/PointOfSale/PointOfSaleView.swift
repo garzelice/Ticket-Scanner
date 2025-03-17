@@ -50,10 +50,7 @@ struct PointOfSale: View {
                         Label(salesChannel.name ?? "No Sales Channel Name", systemImage: viewModel.selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) ? "checkmark.circle.fill" : "circle")
                             .onTapGesture {
                                 viewModel.toggleSalesChannel(salesChannel: salesChannel, products: medusa.products.filter { product in
-                                    guard let productSalesChannels = product.sales_channels else {
-                                        return false
-                                    }
-                                    return productSalesChannels.contains(where: { $0 == salesChannel })
+                                    return product.sales_channels.contains(where: { $0 == salesChannel })
                                 })
                             }
                     }

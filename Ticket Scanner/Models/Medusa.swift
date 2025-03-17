@@ -17,7 +17,7 @@ class Medusa {
     var server: Server = .init()
     var user: User = .init()
     var products: [Product] = []
-    var salesChannels: [Sales_channels] = []
+    var salesChannels: [SalesChannel] = []
 
     // Add API service as a property
     private let apiService = APIService()
@@ -48,7 +48,7 @@ class Medusa {
     }
 
     func getSalesChannels() {
-        apiService.getSalesChannels(server: server) { (result: Result<[Sales_channels], Authentication.AuthenticationError>) in
+        apiService.getSalesChannels(server: server) { (result: Result<[SalesChannel], Authentication.AuthenticationError>) in
             switch result {
             case let .success(salesChannels):
                 self.salesChannels = salesChannels

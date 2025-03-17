@@ -14,7 +14,7 @@
 import Foundation
 
 struct SalesChannelReponse: Codable {
-    let sales_channels: [Sales_channels]?
+    let sales_channels: [SalesChannel]?
     let count: Int?
     let offset: Int?
     let limit: Int?
@@ -28,7 +28,7 @@ struct SalesChannelReponse: Codable {
 
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        sales_channels = try values.decodeIfPresent([Sales_channels].self, forKey: .sales_channels)
+        sales_channels = try values.decodeIfPresent([SalesChannel].self, forKey: .sales_channels)
         count = try values.decodeIfPresent(Int.self, forKey: .count)
         offset = try values.decodeIfPresent(Int.self, forKey: .offset)
         limit = try values.decodeIfPresent(Int.self, forKey: .limit)

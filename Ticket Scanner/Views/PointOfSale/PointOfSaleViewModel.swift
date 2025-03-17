@@ -31,6 +31,16 @@ struct ViewConfig: Identifiable {
         self.product = product
         self.selectedVariants = selectedVariants
     }
+	
+	static func example() -> ViewConfig {
+		return ViewConfig(product: Product.example(), selectedVariants: [])
+	}
+	
+	static func examples() -> [ViewConfig] {
+		return Product.examples().map { product in
+			ViewConfig(product: product, selectedVariants: [])
+		}
+	}
 }
 
 func viewConfigHasProduct(viewConfig: [ViewConfig], product: Product) -> Bool {
@@ -48,10 +58,10 @@ func getVariantById(viewConfig: ViewConfig, id: String) -> SelectedVariant? {
 
 struct SelectedSalesChannel: Identifiable {
     var id: String
-    var salesChannel: Sales_channels
+    var salesChannel: SalesChannel
     var products: [ViewConfig]
 
-    init(salesChannel: Sales_channels, products: [ViewConfig]) {
+    init(salesChannel: SalesChannel, products: [ViewConfig]) {
         id = salesChannel.id
         self.salesChannel = salesChannel
         self.products = products
@@ -136,7 +146,7 @@ class PointOfSaleViewModel {
         return 0
     }
 
-    func toggleSalesChannel(salesChannel: Sales_channels, products: [Product]) {
+    func toggleSalesChannel(salesChannel: SalesChannel, products: [Product]) {
         if selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) {
             selectedSalesChannels.removeAll(where: { $0.salesChannel == salesChannel })
         } else {

@@ -135,7 +135,7 @@ class APIService {
         }.resume()
     }
 
-    func getSalesChannels(server: Server, completion: @escaping (Result<[Sales_channels], Authentication.AuthenticationError>) -> Void) {
+    func getSalesChannels(server: Server, completion: @escaping (Result<[SalesChannel], Authentication.AuthenticationError>) -> Void) {
         guard let urlString = server.url else {
             completion(.failure(.custom(errorMessage: "No Medusa URL Stored")))
             return
