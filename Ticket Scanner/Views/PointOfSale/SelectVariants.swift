@@ -28,11 +28,8 @@ struct SelectVariants: View {
 							Text("\(getCurrent(variant: variant))")
 							Stepper {} onIncrement: {
 								viewModel.addProductToCard(config: openProduct,variant: variant)
-								if let variantId = variant.id {}
 							} onDecrement: {
-								if let variantId = variant.id {
-									//								viewModel.addProductToCard(variantId: variantId)
-								}
+								viewModel.removeProductFromCard(config: openProduct, variant: variant)
 							}
 							.frame(width: 75)
 						}

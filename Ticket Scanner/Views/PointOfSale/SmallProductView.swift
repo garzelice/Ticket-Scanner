@@ -37,7 +37,7 @@ struct SmallProductView: View {
 						Stepper {} onIncrement: {
 							viewModel.addProductToCard(config: config,variant: variant)
 						} onDecrement: {
-							
+							viewModel.removeProductFromCard(config: config, variant: variant)
 						}
 					}
 				}

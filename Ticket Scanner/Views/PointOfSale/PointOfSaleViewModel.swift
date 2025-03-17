@@ -175,4 +175,59 @@ class PointOfSaleViewModel {
 	init(openProduct: ViewConfig?) {
 		self.openProduct = openProduct
 	}
+
+	func removeProductFromCard(config: ViewConfig, variant: Variants) {
+        var updatedVariants: [SelectedVariant] = []
+        var shouldRemove = false
+
+        // First, determine what the updated variants should be by looking at the first instance
+        // of the product across all sales channels
+        for salesChannel in selectedSalesChannels {
+            if let product = salesChannel.products.first(where: { $0 == config }) {
+                updatedVariants = product.selectedVariants
+
+                // Update or remove the variant
+                if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
+                    if updatedVariants[existingVariantIndex].amount > 1 {
+                        updatedVariants[existingVariantIndex].amount -= 1
+                    } else {
+                        // Remove the variant if amount reaches 0
+                        updatedVariants.remove(at: existingVariantIndex)
+                    }
+                }
+
+                break // Only update from the first instance found
+            }
+        }
+
+        var updatedOpenProduct: ViewConfig?
+
+        // Now apply these updated variants to all instances of the product across all sales channels
+        for salesChannelIndex in 0 ..< selectedSalesChannels.count {
+            if let productIndex = selectedSalesChannels[salesChannelIndex].products.firstIndex(where: { $0 == config }) {
+                selectedSalesChannels[salesChannelIndex].products[productIndex].selectedVariants = updatedVariants
+
+                // Save the updated product for refreshing UI
+                updatedOpenProduct = selectedSalesChannels[salesChannelIndex].products[productIndex]
+            }
+        }
+
+        if openProduct != nil {
+            // Update openProduct to ensure UI refreshes
+            if let updatedProduct = updatedOpenProduct {
+                openProduct = updatedProduct
+            }
+        }
+        
+        // Check if cart is now empty
+        let cartHasItems = selectedSalesChannels.contains { channel in
+            channel.products.contains { product in
+                !product.selectedVariants.isEmpty
+            }
+        }
+        
+        withAnimation {
+            itemsInCart = cartHasItems
+        }
+    }
 }
