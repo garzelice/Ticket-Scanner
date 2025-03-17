@@ -7,45 +7,8 @@
 
 import Observation
 import SwiftUI
+import CoreHaptics
 
-struct SelectedVariant: Identifiable {
-    var id: String
-
-    var variant: Variants
-    var amount: Int
-
-    init(variant: Variants, amount: Int) {
-        id = variant.id ?? UUID().uuidString
-        self.variant = variant
-        self.amount = amount
-    }
-}
-
-struct ViewConfig: Identifiable, Equatable {
-	static func == (lhs: ViewConfig, rhs: ViewConfig) -> Bool {
-		return lhs.id == lhs.id
-	}
-	
-    var id: String
-    var product: Product
-    var selectedVariants: [SelectedVariant]
-
-    init(product: Product, selectedVariants: [SelectedVariant]) {
-        id = product.id
-        self.product = product
-        self.selectedVariants = selectedVariants
-    }
-	
-	static func example() -> ViewConfig {
-		return ViewConfig(product: Product.example(), selectedVariants: [])
-	}
-	
-	static func examples() -> [ViewConfig] {
-		return Product.examples().map { product in
-			ViewConfig(product: product, selectedVariants: [])
-		}
-	}
-}
 
 func viewConfigHasProduct(viewConfig: [ViewConfig], product: Product) -> Bool {
     for config in viewConfig {
@@ -60,26 +23,6 @@ func getVariantById(viewConfig: ViewConfig, id: String) -> SelectedVariant? {
     return viewConfig.selectedVariants.first(where: { $0.variant.id == id })
 }
 
-struct SelectedSalesChannel: Identifiable {
-    var id: String
-    var salesChannel: SalesChannel
-    var products: [ViewConfig]
-
-    init(salesChannel: SalesChannel, products: [ViewConfig]) {
-        id = salesChannel.id
-        self.salesChannel = salesChannel
-        self.products = products
-    }
-	
-	static func examples() -> [SelectedSalesChannel] {
-		return SalesChannel.examples().map { salesChannel in
-			return SelectedSalesChannel(
-				salesChannel: salesChannel,
-				products: ViewConfig.examples()
-			)
-		}
-	}
-}
 
 @Observable
 class PointOfSaleViewModel {
@@ -94,6 +37,19 @@ class PointOfSaleViewModel {
 
     var openProduct: ViewConfig?
     var salesChannelSelectOpen: Bool = false
+	
+	private var engine: CHHapticEngine?
+	
+	func prepareHaptics() {
+		guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+
+		do {
+			engine = try CHHapticEngine()
+			try engine?.start()
+		} catch {
+			print("There was an error creating the engine: \(error.localizedDescription)")
+		}
+	}
 
 	func addProductToCard(config: ViewConfig, variant: Variants) {
         // Get the product in all Sales-Channels, in case it is in multiple
@@ -139,6 +95,8 @@ class PointOfSaleViewModel {
 		withAnimation {
 			itemsInCart = true
 		}
+
+        // Remove the counter increment
     }
 
     // Helper method to get variant amount directly from selectedSalesChannels
@@ -229,5 +187,17 @@ class PointOfSaleViewModel {
         withAnimation {
             itemsInCart = cartHasItems
         }
+
+        // Remove the counter increment
+    }
+
+    // Add a method to get the current variants for a product directly from the model
+    func getProductVariants(config: ViewConfig) -> [SelectedVariant] {
+        for salesChannel in selectedSalesChannels {
+            if let product = salesChannel.products.first(where: { $0.product.id == config.product.id }) {
+                return product.selectedVariants
+            }
+        }
+        return []
     }
 }

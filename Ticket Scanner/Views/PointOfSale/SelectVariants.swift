@@ -23,14 +23,15 @@ struct SelectVariants: View {
 				Form {
 					ForEach(variants) { variant in
 						HStack {
-							Text(variant.title ?? "No Title")
+							Text(variant.title != nil ? "\(getCurrent(variant: variant)) × \(variant.title!)" : "No Title")
+								.monospaced()
 							Spacer()
-							Text("\(getCurrent(variant: variant))")
 							Stepper {} onIncrement: {
 								viewModel.addProductToCard(config: openProduct,variant: variant)
 							} onDecrement: {
 								viewModel.removeProductFromCard(config: openProduct, variant: variant)
 							}
+							.sensoryFeedback(.increase, trigger: getCurrent(variant: variant))
 							.frame(width: 75)
 						}
 					}

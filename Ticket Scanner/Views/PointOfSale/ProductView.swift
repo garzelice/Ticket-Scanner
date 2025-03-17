@@ -29,13 +29,16 @@ struct ProductView: View {
 				.clipShape(.rect(cornerRadius: 0))
 				
 				VStack(alignment: .leading, spacing: 4) {
-					if config.selectedVariants.isEmpty {
+					// Use getVariantAmount to directly check if product has variants in the view model
+					if viewModel.getProductVariants(config: config).isEmpty {
 						Text("Nothing Selected")
 							.monospaced()
 							.padding(.horizontal, 12)
 					} else {
-						ForEach(config.selectedVariants) { variantConfig in
-							Text("\(variantConfig.amount) × \(variantConfig.variant.title ?? "No Variant Title")")
+						ForEach(viewModel.getProductVariants(config: config)) { variantConfig in
+							Text("\(variantConfig.amount) × \(variantConfig.variant.title ?? "No Variant Title")")
+								.padding(.horizontal, 12)
+								.monospaced()
 						}
 					}
 					
@@ -54,8 +57,12 @@ struct ProductView: View {
 			}
 			.background(Color(UIColor.systemBackground))
 			.clipShape(.rect(cornerRadius: 12))
+			// No need for the hacky id here
 		}
-		
+		// Instead, use the refreshable modifier to watch viewModel changes
+//		.onChange(of: viewModel.selectedSalesChannels) { _, _ in
+//			// This will cause the view to refresh when selectedSalesChannels changes
+//		}
 	}
 }
 

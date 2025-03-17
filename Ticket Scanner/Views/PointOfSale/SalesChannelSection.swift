@@ -25,6 +25,7 @@ struct SalesChannelSection: View {
 						.multilineTextAlignment(.leading)
 						.padding(.leading, 16)
 				}
+				.transition(.scale)
 			}
 		}
 	}

@@ -18,61 +18,6 @@ struct LargeButton: ButtonStyle {
     }
 }
 
-// Extracted component for Add Sales Channel button
-struct AddSalesChannelButton: View {
-    @Environment(PointOfSaleViewModel.self) private var viewModel
-    
-    var body: some View {
-		VStack(alignment: .leading, spacing: 8) {
-			Section {
-				Button {
-					viewModel.salesChannelSelectOpen = true
-				} label: {
-					Image(systemName: "plus.circle")
-						.frame(maxWidth: .infinity)
-				}
-				.buttonStyle(LargeButton())
-			} header: {
-				Text("Add Sales Channel")
-					.monospaced()
-					.multilineTextAlignment(.leading)
-					.padding(.leading, 16)
-			}
-		}
-    }
-}
-
-// Extracted component for Sales Channel Selection Sheet
-struct SalesChannelSelectionSheet: View {
-    @Environment(Medusa.self) private var medusa
-    @Environment(PointOfSaleViewModel.self) private var viewModel
-    @Binding var isPresented: Bool
-    
-    var body: some View {
-        NavigationView {
-            List(medusa.salesChannels) { salesChannel in
-                Label(
-                    salesChannel.name ?? "No Sales Channel Name",
-                    systemImage: viewModel.selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) ? "checkmark.circle.fill" : "circle"
-                )
-				.onTapGesture {
-					viewModel.toggleSalesChannel(
-						salesChannel: salesChannel,
-						products: medusa.products.filter { product in
-							guard let productSalesChannels = product.sales_channels else {
-								return false
-							}
-							return productSalesChannels.contains(where: { $0 == salesChannel })
-						}
-					)
-				}
-            }
-            .navigationTitle("Select Sales Channel")
-        }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
-    }
-}
 
 struct PointOfSale: View {
     @Environment(Medusa.self) private var medusa
@@ -115,6 +60,7 @@ struct PointOfSale: View {
 					.padding()
 					.background(Color(UIColor.systemBackground))
 					.frame(maxWidth: .infinity)
+					.clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 10, topTrailing: 10)))
 					.transition(.move(edge: .bottom))
 				}
 			}

@@ -33,6 +33,7 @@ struct SmallProductView: View {
 							.contentTransition(.numericText(value: Double(amount)))
 							.animation(.linear(duration: 0.2), value: amount)
 							.monospaced()
+							.padding(.leading, 12)
 						Spacer()
 						Stepper {} onIncrement: {
 							viewModel.addProductToCard(config: config,variant: variant)
@@ -41,7 +42,7 @@ struct SmallProductView: View {
 						}
 					}
 				}
-				.padding()
+				.padding(4)
 			
 			.background(Color(UIColor.systemBackground))
 			.clipShape(.rect(cornerRadius: 12))
