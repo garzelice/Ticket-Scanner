@@ -46,36 +46,13 @@ struct SalesChannel: Codable, Identifiable, Equatable {
 			"updated_at": "2024-11-24T18:09:31.465Z",
 			"deleted_at": null,
 			"metadata": null
-		},
+		}
 		"""
 		return try! JSONDecoder().decode(SalesChannel.self, from: JSON.data(using: .utf8)!)
 	}
 	
 	static func examples() -> [SalesChannel] {
-		let JSON = """
-		[
-			{
-				"id": "sc_01JDFNTMA9FSSVQRV6T2HK6X3S",
-				"name": "Default Sales Channel",
-				"description": "Created by Medusa",
-				"is_disabled": false,
-				"created_at": "2024-11-24T18:09:31.465Z",
-				"updated_at": "2024-11-24T18:09:31.465Z",
-				"deleted_at": null,
-				"metadata": null
-			},
-			{
-				"id": "sc_01JPFF4X39P7ARPQK86KV7GMP7",
-				"name": "Abendkasse",
-				"description": "Lol\n",
-				"is_disabled": false,
-				"created_at": "2025-03-16T12:34:04.522Z",
-				"updated_at": "2025-03-16T12:34:04.522Z",
-				"deleted_at": null,
-				"metadata": null
-			}
-		]
-		"""
+		let JSON = #"[{"id":"sc_01JDFNTMA9FSSVQRV6T2HK6X3S","name":"Default Sales Channel","description":"Created by Medusa","is_disabled":false,"created_at":"2024-11-24T18:09:31.465Z","updated_at":"2024-11-24T18:09:31.465Z","deleted_at":null,"metadata":null},{"id":"sc_01JPFF4X39P7ARPQK86KV7GMP7","name":"Abendkasse","description":"Lol\n","is_disabled":false,"created_at":"2025-03-16T12:34:04.522Z","updated_at":"2025-03-16T12:34:04.522Z","deleted_at":null,"metadata":null}]"#
 		return try! JSONDecoder().decode([SalesChannel].self, from: JSON.data(using: .utf8)!)
 	}
 }

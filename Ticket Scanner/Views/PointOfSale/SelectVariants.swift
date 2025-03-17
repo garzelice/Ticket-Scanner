@@ -43,7 +43,7 @@ struct SelectVariants: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = PointOfSaleViewModel(openProduct: ViewConfig(product: MockData().products.first!, selectedVariants: []))
+	@Previewable @State var viewModel = PointOfSaleViewModel(openProduct: ViewConfig.example())
 
     SelectVariants()
         .environment(viewModel)

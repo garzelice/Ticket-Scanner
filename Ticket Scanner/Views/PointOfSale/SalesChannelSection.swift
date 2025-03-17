@@ -23,19 +23,12 @@ struct SalesChannelSection: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = PointOfSaleViewModel()
-    @Previewable @State var medusa = Medusa(user: User(), server: Server(), products: MockData().products)
+	@Previewable @State var viewModel = PointOfSaleViewModel(selectedSalesChannels: SelectedSalesChannel.examples())
+	@Previewable @State var medusa = Medusa(user: User(), server: Server(), products: Product.examples())
 
-    SalesChannelSection()
-        .environment(viewModel)
-        .environment(medusa)
-        .onAppear {
-            medusa.getProducts()
-            medusa.getSalesChannels()
-            viewModel.selectedSalesChannels = medusa.salesChannels.map { salesChannel in
-                SelectedSalesChannel(salesChannel: salesChannel, products: medusa.products.map { product in
-                    ViewConfig(product: product, selectedVariants: [])
-                })
-            }
-        }
+	ScrollView {
+		SalesChannelSection()
+			.environment(viewModel)
+			.environment(medusa)
+	}
 }

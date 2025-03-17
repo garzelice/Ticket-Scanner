@@ -18,9 +18,63 @@ struct LargeButton: ButtonStyle {
     }
 }
 
+// Extracted component for Add Sales Channel button
+struct AddSalesChannelButton: View {
+    @Environment(PointOfSaleViewModel.self) private var viewModel
+    
+    var body: some View {
+        VStack {
+            Text("Add Sales Channel")
+                .font(.caption2)
+                .textCase(.uppercase)
+                .foregroundStyle(Color.gray)
+                .padding()
+            Button {
+                viewModel.salesChannelSelectOpen = true
+            } label: {
+                Image(systemName: "plus.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(LargeButton())
+            Spacer()
+        }
+    }
+}
+
+// Extracted component for Sales Channel Selection Sheet
+struct SalesChannelSelectionSheet: View {
+    @Environment(Medusa.self) private var medusa
+    @Environment(PointOfSaleViewModel.self) private var viewModel
+    @Binding var isPresented: Bool
+    
+    var body: some View {
+        NavigationView {
+            List(medusa.salesChannels) { salesChannel in
+                Label(
+                    salesChannel.name ?? "No Sales Channel Name",
+                    systemImage: viewModel.selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) ? "checkmark.circle.fill" : "circle"
+                )
+				.onTapGesture {
+					viewModel.toggleSalesChannel(
+						salesChannel: salesChannel,
+						products: medusa.products.filter { product in
+							guard let productSalesChannels = product.sales_channels else {
+								return false
+							}
+							return productSalesChannels.contains(where: { $0 == salesChannel })
+						}
+					)
+				}
+            }
+            .navigationTitle("Select Sales Channel")
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+}
+
 struct PointOfSale: View {
     @Environment(Medusa.self) private var medusa
-
     @State var viewModel = PointOfSaleViewModel()
 
     var body: some View {
@@ -28,41 +82,18 @@ struct PointOfSale: View {
             ScrollView {
                 SalesChannelSection()
                     .environment(viewModel)
-                VStack {
-                    Text("Add Sales Channel")
-                        .font(.caption2)
-                        .textCase(.uppercase)
-                        .foregroundStyle(Color.gray)
-                        .padding()
-                    Button {
-                        viewModel.salesChannelSelectOpen = true
-                    } label: {
-                        Image(systemName: "plus.circle")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(LargeButton())
-                    Spacer()
-                }
+                
+                AddSalesChannelButton()
+                    .environment(viewModel)
             }
             .sheet(isPresented: $viewModel.salesChannelSelectOpen) {
-                NavigationView {
-                    List(medusa.salesChannels) { salesChannel in
-                        Label(salesChannel.name ?? "No Sales Channel Name", systemImage: viewModel.selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) ? "checkmark.circle.fill" : "circle")
-                            .onTapGesture {
-                                viewModel.toggleSalesChannel(salesChannel: salesChannel, products: medusa.products.filter { product in
-                                    return product.sales_channels.contains(where: { $0 == salesChannel })
-                                })
-                            }
-                    }
-                    .navigationTitle("Select Sales Channel")
-                }
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
+                SalesChannelSelectionSheet(isPresented: $viewModel.salesChannelSelectOpen)
+                    .environment(viewModel)
             }
-            .sheet(item: $viewModel.openProduct, content: { _ in
+            .sheet(item: $viewModel.openProduct) { _ in
                 SelectVariants()
                     .environment(viewModel)
-            })
+            }
             .padding()
             .navigationTitle("Point of Sale")
             .onAppear {
@@ -75,7 +106,7 @@ struct PointOfSale: View {
 }
 
 #Preview {
-    @Previewable @State var medusa = Medusa(user: User(), server: Server(), products: MockData().products)
+    @Previewable @State var medusa = Medusa(user: User(), server: Server(), products: Product.examples())
     PointOfSale()
         .environment(medusa)
 }

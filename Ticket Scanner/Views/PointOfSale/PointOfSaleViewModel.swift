@@ -66,6 +66,15 @@ struct SelectedSalesChannel: Identifiable {
         self.salesChannel = salesChannel
         self.products = products
     }
+	
+	static func examples() -> [SelectedSalesChannel] {
+		return SalesChannel.examples().map { salesChannel in
+			return SelectedSalesChannel(
+				salesChannel: salesChannel,
+				products: ViewConfig.examples()
+			)
+		}
+	}
 }
 
 @Observable
@@ -158,7 +167,11 @@ class PointOfSaleViewModel {
 
     init() {}
 
-    init(openProduct: ViewConfig?) {
-        self.openProduct = openProduct
+	init(selectedSalesChannels: [SelectedSalesChannel]) {
+		self.selectedSalesChannels = selectedSalesChannels
     }
+	
+	init(openProduct: ViewConfig?) {
+		self.openProduct = openProduct
+	}
 }
