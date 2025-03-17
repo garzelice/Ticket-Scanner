@@ -23,21 +23,22 @@ struct AddSalesChannelButton: View {
     @Environment(PointOfSaleViewModel.self) private var viewModel
     
     var body: some View {
-        VStack {
-            Text("Add Sales Channel")
-                .font(.caption2)
-                .textCase(.uppercase)
-                .foregroundStyle(Color.gray)
-                .padding()
-            Button {
-                viewModel.salesChannelSelectOpen = true
-            } label: {
-                Image(systemName: "plus.circle")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(LargeButton())
-            Spacer()
-        }
+		VStack(alignment: .leading, spacing: 8) {
+			Section {
+				Button {
+					viewModel.salesChannelSelectOpen = true
+				} label: {
+					Image(systemName: "plus.circle")
+						.frame(maxWidth: .infinity)
+				}
+				.buttonStyle(LargeButton())
+			} header: {
+				Text("Add Sales Channel")
+					.monospaced()
+					.multilineTextAlignment(.leading)
+					.padding(.leading, 16)
+			}
+		}
     }
 }
 
@@ -80,11 +81,14 @@ struct PointOfSale: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                SalesChannelSection()
-                    .environment(viewModel)
-                
-                AddSalesChannelButton()
-                    .environment(viewModel)
+				VStack {
+					SalesChannelSection()
+						.environment(viewModel)
+					
+					AddSalesChannelButton()
+						.environment(viewModel)
+				}
+				.padding()
             }
             .sheet(isPresented: $viewModel.salesChannelSelectOpen) {
                 SalesChannelSelectionSheet(isPresented: $viewModel.salesChannelSelectOpen)
@@ -94,13 +98,17 @@ struct PointOfSale: View {
                 SelectVariants()
                     .environment(viewModel)
             }
-            .padding()
+            
             .navigationTitle("Point of Sale")
             .onAppear {
                 medusa.getProducts()
                 medusa.getSalesChannels()
             }
 			.background(Color(UIColor.secondarySystemBackground))
+			.toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
+			.toolbarBackground(.visible, for: .tabBar)
+			.toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
+			.toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }

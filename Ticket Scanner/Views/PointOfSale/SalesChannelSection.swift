@@ -18,11 +18,11 @@ struct SalesChannelSection: View {
 					LazyVGrid(columns: viewModel.adaptiveColumn, alignment: .leading, spacing: 20) {
 						ProductsView(products: salesChannel.products)
 					}
+					.padding(.bottom, 32)
 				} header: {
 					Text(salesChannel.salesChannel.name ?? "No SalesChannel Name")
 						.monospaced()
 						.multilineTextAlignment(.leading)
-						.padding(.top, 32)
 						.padding(.leading, 16)
 				}
 			}
