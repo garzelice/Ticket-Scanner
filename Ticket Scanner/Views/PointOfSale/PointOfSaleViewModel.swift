@@ -50,6 +50,27 @@ class PointOfSaleViewModel {
 			print("There was an error creating the engine: \(error.localizedDescription)")
 		}
 	}
+	
+	func complexSuccess() {
+		// make sure that the device supports haptics
+		guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
+		var events = [CHHapticEvent]()
+
+		// create one intense, sharp tap
+		let intensity = CHHapticEventParameter(parameterID: .hapticIntensity, value: 1)
+		let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 1)
+		let event = CHHapticEvent(eventType: .hapticTransient, parameters: [intensity, sharpness], relativeTime: 0)
+		events.append(event)
+
+		// convert those events into a pattern and play it immediately
+		do {
+			let pattern = try CHHapticPattern(events: events, parameters: [])
+			let player = try engine?.makePlayer(with: pattern)
+			try player?.start(atTime: 0)
+		} catch {
+			print("Failed to play pattern: \(error.localizedDescription).")
+		}
+	}
 
 	func addProductToCard(config: ViewConfig, variant: Variants) {
         // Get the product in all Sales-Channels, in case it is in multiple
@@ -96,7 +117,7 @@ class PointOfSaleViewModel {
 			itemsInCart = true
 		}
 
-        // Remove the counter increment
+		complexSuccess()
     }
 
     // Helper method to get variant amount directly from selectedSalesChannels
@@ -136,7 +157,17 @@ class PointOfSaleViewModel {
 
 	func removeProductFromCard(config: ViewConfig, variant: Variants) {
         var updatedVariants: [SelectedVariant] = []
-        var shouldRemove = false
+        
+		// Check if cart is now empty
+		var cartHasItems = selectedSalesChannels.contains { channel in
+			channel.products.contains { product in
+				!product.selectedVariants.isEmpty
+			}
+		}
+		
+		if cartHasItems {
+			complexSuccess()
+		}
 
         // First, determine what the updated variants should be by looking at the first instance
         // of the product across all sales channels
@@ -178,17 +209,15 @@ class PointOfSaleViewModel {
         }
         
         // Check if cart is now empty
-        let cartHasItems = selectedSalesChannels.contains { channel in
+        cartHasItems = selectedSalesChannels.contains { channel in
             channel.products.contains { product in
                 !product.selectedVariants.isEmpty
             }
         }
-        
+		
         withAnimation {
             itemsInCart = cartHasItems
         }
-
-        // Remove the counter increment
     }
 
     // Add a method to get the current variants for a product directly from the model

@@ -77,6 +77,8 @@ struct PointOfSale: View {
             .onAppear {
                 medusa.getProducts()
                 medusa.getSalesChannels()
+				
+				viewModel.prepareHaptics()
             }
 			.background(Color(UIColor.secondarySystemBackground))
 			.toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
