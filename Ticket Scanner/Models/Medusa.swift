@@ -48,14 +48,11 @@ class Medusa {
     }
 
     func getSalesChannels() {
-        apiService.getSalesChannels(server: server) { (result: Result<[SalesChannel], Authentication.AuthenticationError>) in
-            switch result {
-            case let .success(salesChannels):
-                self.salesChannels = salesChannels
-            case let .failure(err):
-                print(err.localizedDescription)
-            }
-        }
+		Task {
+			if let salesChannels = try? await apiService.getSalesChannels(server: server) {
+				self.salesChannels = salesChannels
+			}
+		}
     }
 
     func getProducts() {

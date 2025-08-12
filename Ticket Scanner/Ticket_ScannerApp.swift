@@ -11,6 +11,7 @@ import SwiftUI
 @main
 struct Ticket_ScannerApp: App {
     @State private var medusa = Medusa()
+	@State var auth: Auth = .init()
     @StateObject var authentication = Authentication()
 
     var sharedModelContainer: ModelContainer = {

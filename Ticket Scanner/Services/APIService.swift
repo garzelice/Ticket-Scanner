@@ -135,20 +135,17 @@ class APIService {
         }.resume()
     }
 
-    func getSalesChannels(server: Server, completion: @escaping (Result<[SalesChannel], Authentication.AuthenticationError>) -> Void) {
+	func getSalesChannels(server: Server) async throws -> [SalesChannel] {
         guard let urlString = server.url else {
-            completion(.failure(.custom(errorMessage: "No Medusa URL Stored")))
-            return
+			throw Authentication.AuthenticationError.custom(errorMessage: "No Medusa URL Stored")
         }
 
         guard let url = URL(string: urlString) else {
-            completion(.failure(.custom(errorMessage: "Couldn’t parse stored URL, it’s probably malformed")))
-            return
+			throw Authentication.AuthenticationError.custom(errorMessage: "Couldn’t parse stored URL, it’s probably malformed")
         }
 
         guard let token = server.token else {
-            completion(.failure(.custom(errorMessage: "No token available")))
-            return
+			throw Authentication.AuthenticationError.custom(errorMessage: "No token available")
         }
 
         var request = URLRequest(url: url.appending(path: "/admin/sales-channels"))
@@ -156,23 +153,17 @@ class APIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(.failure(.custom(errorMessage: "No Response from Medusa")))
-                return
-            }
-
-            guard let salesChannelResponse = try? JSONDecoder().decode(SalesChannelReponse.self, from: data) else {
-                completion(.failure(.custom(errorMessage: "Invalid Product Schema")))
-                return
-            }
-
-            guard let salesChannels = salesChannelResponse.sales_channels else {
-                completion(.failure(.custom(errorMessage: "No Sales Channels")))
-                return
-            }
-
-            completion(.success(salesChannels))
-        }.resume()
+        let (data, response) = try await URLSession.shared.data(for: request)
+		guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw Authentication.AuthenticationError.custom(errorMessage: "Couldnt connect to medusa") }
+		
+		guard let salesChannelResponse = try? JSONDecoder().decode(SalesChannelReponse.self, from: data) else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "Invalid Product Schema")
+		}
+		
+		guard let salesChannels = salesChannelResponse.sales_channels else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "No Sales Channel")
+		}
+		
+		return salesChannels
     }
 }
