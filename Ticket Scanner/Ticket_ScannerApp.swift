@@ -32,9 +32,11 @@ struct Ticket_ScannerApp: App {
             if medusa.isAuthenticated {
                 ContentView()
                     .environment(medusa)
+                    .environment(auth)
             } else {
                 LoginView()
                     .environment(medusa)
+                    .environment(auth)
             }
         }
         .modelContainer(sharedModelContainer)
