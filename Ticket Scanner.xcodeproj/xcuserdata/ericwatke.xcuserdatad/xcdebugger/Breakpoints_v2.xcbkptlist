@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "134"
             endingLineNumber = "134"
-            landmarkName = "getProducts(server:salesChannelId:completion:)"
+            landmarkName = "getProducts(server:salesChannelId:debug:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

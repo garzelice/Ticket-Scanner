@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F68FEF9E2E4B52A900B86497 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEF9D2E4B52A900B86497 /* KeychainSwift */; };
+		F68FEFA12E4B632C00B86497 /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA02E4B632C00B86497 /* CodeScanner */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F68FEFA12E4B632C00B86497 /* CodeScanner in Frameworks */,
 				F68FEF9E2E4B52A900B86497 /* KeychainSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,7 @@
 			name = "Ticket Scanner";
 			packageProductDependencies = (
 				F68FEF9D2E4B52A900B86497 /* KeychainSwift */,
+				F68FEFA02E4B632C00B86497 /* CodeScanner */,
 			);
 			productName = "Ticket Scanner";
 			productReference = F691BB552D7C9AE000644430 /* Ticket Scanner.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F68FEF9C2E4B52A900B86497 /* XCRemoteSwiftPackageReference "keychain-swift" */,
+				F68FEF9F2E4B632C00B86497 /* XCRemoteSwiftPackageReference "CodeScanner" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F691BB562D7C9AE000644430 /* Products */;
@@ -266,6 +270,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Zum Ticket Scannen";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Allow FaceID to login faster";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -298,6 +303,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Zum Ticket Scannen";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Allow FaceID to login faster";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -349,6 +355,14 @@
 				minimumVersion = 24.0.0;
 			};
 		};
+		F68FEF9F2E4B632C00B86497 /* XCRemoteSwiftPackageReference "CodeScanner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/twostraws/CodeScanner";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -356,6 +370,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F68FEF9C2E4B52A900B86497 /* XCRemoteSwiftPackageReference "keychain-swift" */;
 			productName = KeychainSwift;
+		};
+		F68FEFA02E4B632C00B86497 /* CodeScanner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F68FEF9F2E4B632C00B86497 /* XCRemoteSwiftPackageReference "CodeScanner" */;
+			productName = CodeScanner;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

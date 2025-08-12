@@ -1,6 +1,15 @@
 {
-  "originHash" : "61d0f8bddcbf3b93ae7ce1d42c4f6929e95bfcb66319ddeb36d0dda55337047e",
+  "originHash" : "259793a4d3f71f158a963d5e84fc2abe0061593fce23dc33e0aa839efba414ff",
   "pins" : [
+    {
+      "identity" : "codescanner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/twostraws/CodeScanner",
+      "state" : {
+        "revision" : "5e886430238944c7200fc9e10dbf2d9550dba865",
+        "version" : "2.5.2"
+      }
+    },
     {
       "identity" : "keychain-swift",
       "kind" : "remoteSourceControl",

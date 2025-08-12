@@ -193,4 +193,36 @@ class APIService {
 		
 		return salesChannels
     }
+	
+	func getTickets(server: Server) async throws -> [Ticket] {
+		guard let urlString = server.url else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "No Medusa URL Stored")
+		}
+
+		guard let url = URL(string: urlString) else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "Couldn’t parse stored URL, it’s probably malformed")
+		}
+
+		guard let token = server.token else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "No token available")
+		}
+
+		var request = URLRequest(url: url.appending(path: "/admin/tickets"))
+		request.httpMethod = "GET"
+		request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+		let (data, response) = try await URLSession.shared.data(for: request)
+		guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw Authentication.AuthenticationError.custom(errorMessage: "Couldnt connect to medusa") }
+		
+		guard let ticketsResponse = try? JSONDecoder().decode(TicketResponse.self, from: data) else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "Invalid Product Schema")
+		}
+		
+		guard let salesChannels = ticketsResponse.data else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "No Sales Channel")
+		}
+		
+		return salesChannels
+	}
 }

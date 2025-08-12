@@ -16,6 +16,7 @@ class Medusa {
     var user: User = .init()
     var products: [Product] = []
     var salesChannels: [SalesChannel] = []
+	var tickets: [Ticket] = []
 
     private let apiService = APIService()
 
@@ -42,6 +43,24 @@ class Medusa {
             }
         }
     }
+	
+	func getTickets(auth: Auth, debug: Bool = false) async {
+		guard let urlString = auth.medusaUrl, let token = auth.medusaToken else { return }
+		let server = Server(); server.url = urlString; server.token = token
+		do {
+			tickets = try await apiService.getTickets(server: server)
+		} catch {
+			print(error)
+		}
+//		apiService.getTickets(server: server) { (result: Result<[Ticket], Authentication.AuthenticationError>) in
+//			switch result {
+//			case let .success(products):
+//				self.tickets = products
+//			case let .failure(err):
+//				print(err.localizedDescription)
+//			}
+//		}
+	}
 
     func refreshAuth(auth: Auth) async {
         await auth.refresh()
