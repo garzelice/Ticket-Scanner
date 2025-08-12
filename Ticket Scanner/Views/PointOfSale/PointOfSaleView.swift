@@ -75,8 +75,9 @@ struct PointOfSale: View {
             }
             
             .navigationTitle("Point of Sale")
-            .onAppear {
-                medusa.getProducts(auth: auth)
+			.onAppear {
+				// Enable debug once to capture full products JSON for schema alignment
+				medusa.getProducts(auth: auth, debug: true)
 				medusa.getSalesChannels(auth: auth)
 				
 				viewModel.prepareHaptics()

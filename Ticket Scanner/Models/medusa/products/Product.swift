@@ -20,6 +20,12 @@ struct ProductType: Codable {
     let deleted_at: String?
 }
 
+struct ProductCollection: Codable {
+    let id: String?
+    let title: String?
+    let handle: String?
+}
+
 struct Product: Codable, Identifiable {
     let id: String
     let title: String?
@@ -46,7 +52,7 @@ struct Product: Codable, Identifiable {
     let deleted_at: String?
     let metadata: [String: String]?
     let type: ProductType?
-    let collection: String?
+    let collection: ProductCollection?
     let options: [Options]?
     let tags: [String]?
     let images: [Images]?
@@ -88,7 +94,7 @@ struct Product: Codable, Identifiable {
         case sales_channels
     }
 
-    init(id: String, title: String?, subtitle: String?, status: ProductStatus, external_id: String?, description: String?, handle: String?, is_giftcard: Bool?, discountable: Bool?, thumbnail: String?, collection_id: String?, type_id: String?, weight: String?, length: String?, height: String?, width: String?, hs_code: String?, origin_country: String?, mid_code: String?, material: String?, created_at: String?, updated_at: String?, deleted_at: String?, metadata: [String: String]?, type: ProductType?, collection: String?, options: [Options]?, tags: [String]?, images: [Images]?, variants: [Variants]?, sales_channels: [SalesChannel]?) {
+    init(id: String, title: String?, subtitle: String?, status: ProductStatus, external_id: String?, description: String?, handle: String?, is_giftcard: Bool?, discountable: Bool?, thumbnail: String?, collection_id: String?, type_id: String?, weight: String?, length: String?, height: String?, width: String?, hs_code: String?, origin_country: String?, mid_code: String?, material: String?, created_at: String?, updated_at: String?, deleted_at: String?, metadata: [String: String]?, type: ProductType?, collection: ProductCollection?, options: [Options]?, tags: [String]?, images: [Images]?, variants: [Variants]?, sales_channels: [SalesChannel]?) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
@@ -160,7 +166,13 @@ struct Product: Codable, Identifiable {
             metadata = nil
         }
         type = try values.decodeIfPresent(ProductType.self, forKey: .type)
-        collection = try values.decodeIfPresent(String.self, forKey: .collection)
+        if let obj = try? values.decodeIfPresent(ProductCollection.self, forKey: .collection) {
+            collection = obj
+        } else if let idOnly = try? values.decodeIfPresent(String.self, forKey: .collection) {
+            collection = ProductCollection(id: idOnly, title: nil, handle: nil)
+        } else {
+            collection = nil
+        }
         options = try values.decodeIfPresent([Options].self, forKey: .options)
         tags = try values.decodeIfPresent([String].self, forKey: .tags)
         images = try values.decodeIfPresent([Images].self, forKey: .images)
@@ -183,7 +195,7 @@ struct Product: Codable, Identifiable {
 			print(error)
 		}
 		
-		return Product(id: "", title: nil, subtitle: nil, status: .draft, external_id: nil, description: nil, handle: nil, is_giftcard: nil, discountable: nil, thumbnail: nil, collection_id: nil, type_id: nil, weight: nil, length: nil, height: nil, width: nil, hs_code: nil, origin_country: nil, mid_code: nil, material: nil, created_at: nil, updated_at: nil, deleted_at: nil, metadata: nil, type: nil, collection: nil, options: nil, tags: nil, images: nil, variants: nil, sales_channels: nil)
+        return Product(id: "", title: nil, subtitle: nil, status: .draft, external_id: nil, description: nil, handle: nil, is_giftcard: nil, discountable: nil, thumbnail: nil, collection_id: nil, type_id: nil, weight: nil, length: nil, height: nil, width: nil, hs_code: nil, origin_country: nil, mid_code: nil, material: nil, created_at: nil, updated_at: nil, deleted_at: nil, metadata: nil, type: nil, collection: nil, options: nil, tags: nil, images: nil, variants: nil, sales_channels: nil)
     }
 	
 	static func examples() -> [Product] {

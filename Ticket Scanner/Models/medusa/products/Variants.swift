@@ -34,7 +34,8 @@ struct Variants: Codable, Identifiable, Equatable {
     let length: String?
     let height: String?
     let width: String?
-    let metadata: String?
+    // metadata can be an object of string values
+    let metadata: [String:String]?
     let variant_rank: Int?
     let product_id: String?
     let created_at: String?
@@ -88,7 +89,11 @@ struct Variants: Codable, Identifiable, Equatable {
         length = try values.decodeIfPresent(String.self, forKey: .length)
         height = try values.decodeIfPresent(String.self, forKey: .height)
         width = try values.decodeIfPresent(String.self, forKey: .width)
-        metadata = try values.decodeIfPresent(String.self, forKey: .metadata)
+        if let dict = try? values.decodeIfPresent([String:String].self, forKey: .metadata) {
+            metadata = dict
+        } else {
+            metadata = nil
+        }
         variant_rank = try values.decodeIfPresent(Int.self, forKey: .variant_rank)
         product_id = try values.decodeIfPresent(String.self, forKey: .product_id)
         created_at = try values.decodeIfPresent(String.self, forKey: .created_at)

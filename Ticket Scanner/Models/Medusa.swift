@@ -30,10 +30,10 @@ class Medusa {
         }
     }
 
-    func getProducts(auth: Auth, salesChannelId: String? = nil) {
+    func getProducts(auth: Auth, salesChannelId: String? = nil, debug: Bool = false) {
         guard let urlString = auth.medusaUrl, let token = auth.medusaToken else { return }
         let server = Server(); server.url = urlString; server.token = token
-        apiService.getProducts(server: server, salesChannelId: salesChannelId) { (result: Result<[Product], Authentication.AuthenticationError>) in
+        apiService.getProducts(server: server, salesChannelId: salesChannelId, debug: debug) { (result: Result<[Product], Authentication.AuthenticationError>) in
             switch result {
             case let .success(products):
                 self.products = products

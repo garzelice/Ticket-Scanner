@@ -96,6 +96,7 @@ class APIService {
 
     func getProducts(server: Server,
                      salesChannelId: String? = nil,
+                     debug: Bool = false,
                      completion: @escaping (Result<[Product], Authentication.AuthenticationError>) -> Void) {
         guard let urlString = server.url else {
             completion(.failure(.custom(errorMessage: "No Medusa URL Stored")))
@@ -122,7 +123,7 @@ class APIService {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
+    URLSession.shared.dataTask(with: request) { data, _, error in
             guard let data = data, error == nil else {
                 completion(.failure(.custom(errorMessage: "No Response from Medusa")))
                 return
@@ -137,10 +138,25 @@ class APIService {
                 }
                 completion(.success(products))
             } else {
-                // Debug: log raw JSON snippet (truncate for safety)
-                let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
-                let truncated = raw.count > 1000 ? String(raw.prefix(1000)) + "…" : raw
-                print("Product decode failed. Raw response:\n" + truncated)
+                if debug {
+                    let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+                    // Print in chunks of 8000 chars to avoid Xcode truncation
+                    let chunkSize = 8000
+                    var start = raw.startIndex
+                    var idx = 0
+                    while start < raw.endIndex {
+                        let end = raw.index(start, offsetBy: chunkSize, limitedBy: raw.endIndex) ?? raw.endIndex
+                        let chunk = raw[start..<end]
+                        print("[Products JSON chunk #\(idx)]\n" + chunk)
+                        start = end
+                        idx += 1
+                    }
+                    // Attempt to write to a temporary file for easier inspection (path printed)
+                    let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("products_response.json")
+                    do { try raw.write(to: fileURL, atomically: true, encoding: .utf8); print("Full products JSON written to: \(fileURL.path)") } catch { print("Failed to write products JSON file: \(error)") }
+                } else {
+                    print("Product decode failed. Enable debug to dump full JSON.")
+                }
                 completion(.failure(.custom(errorMessage: "Invalid Product Schema")))
             }
         }.resume()
