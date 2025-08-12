@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(Medusa.self) private var medusa // Existing environment controlling app gating
+    @Environment(Medusa.self) private var medusa // Legacy sync; app now gates on auth.isAuthenticated
     @Environment(Auth.self) private var auth     // New Auth environment object for persistence
     @StateObject private var loginVM = LoginViewModel()
 
@@ -229,9 +229,7 @@ struct LoginView: View {
         Task {
             do {
                 try await auth.authenticate(url: url, email: email, password: password)
-                await MainActor.run {
-                    withAnimation { medusa.isAuthenticated = true }
-                }
+                await MainActor.run { medusa.isAuthenticated = true } // keep sync, gating handled by auth
             } catch {
                 await MainActor.run {
                     testError = error.localizedDescription

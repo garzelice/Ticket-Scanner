@@ -31,13 +31,13 @@ struct SalesChannelSection: View {
 	}
 }
 
-#Preview {
-	@Previewable @State var viewModel = PointOfSaleViewModel(selectedSalesChannels: SelectedSalesChannel.examples())
-	@Previewable @State var medusa = Medusa(user: User(), server: Server(), products: Product.examples())
-	
-	ScrollView {
-		SalesChannelSection()
-			.environment(viewModel)
-			.environment(medusa)
-	}
-}
+//#Preview {
+//	@Previewable @State var viewModel = PointOfSaleViewModel(selectedSalesChannels: SelectedSalesChannel.examples())
+//	@Previewable @State var medusa = Medusa
+//	
+//	ScrollView {
+//		SalesChannelSection()
+//			.environment(viewModel)
+//			.environment(medusa)
+//	}
+//}

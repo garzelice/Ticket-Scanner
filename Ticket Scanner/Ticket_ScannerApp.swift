@@ -29,15 +29,24 @@ struct Ticket_ScannerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if medusa.isAuthenticated {
-                ContentView()
-                    .environment(medusa)
-                    .environment(auth)
-            } else {
-                LoginView()
-                    .environment(medusa)
-                    .environment(auth)
+            Group {
+                if auth.isAuthenticated {
+                    ContentView()
+                } else {
+                    LoginView()
+                }
             }
+            .task {
+                // Attempt token refresh on launch to re-auth silently.
+                await auth.refresh()
+                // Mirror into medusa for any legacy usage
+                medusa.isAuthenticated = auth.isAuthenticated
+            }
+            .onChange(of: auth.isAuthenticated) { _, newValue in
+                medusa.isAuthenticated = newValue
+            }
+            .environment(medusa)
+            .environment(auth)
         }
         .modelContainer(sharedModelContainer)
     }

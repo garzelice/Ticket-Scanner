@@ -21,6 +21,7 @@ struct LargeButton: ButtonStyle {
 
 struct PointOfSale: View {
     @Environment(Medusa.self) private var medusa
+	@Environment(Auth.self) private var auth
     @State var viewModel = PointOfSaleViewModel()
 
     var body: some View {
@@ -75,11 +76,16 @@ struct PointOfSale: View {
             
             .navigationTitle("Point of Sale")
             .onAppear {
-                medusa.getProducts()
-                medusa.getSalesChannels()
+                medusa.getProducts(auth: auth)
+				medusa.getSalesChannels(auth: auth)
 				
 				viewModel.prepareHaptics()
             }
+			.onChange(of: viewModel.selectedSalesChannels) { _, newValue in
+				// Refetch products filtered by first selected sales channel if available
+				let channelId = newValue.first?.salesChannel.id
+				medusa.getProducts(auth: auth, salesChannelId: channelId)
+			}
 			.background(Color(UIColor.secondarySystemBackground))
 			.toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
 			.toolbarBackground(.visible, for: .tabBar)
@@ -89,8 +95,8 @@ struct PointOfSale: View {
     }
 }
 
-#Preview {
-    @Previewable @State var medusa = Medusa(user: User(), server: Server(), products: Product.examples())
-    PointOfSale()
-        .environment(medusa)
-}
+//#Preview {
+//	@Previewable @State var medusa = Medusa
+//    PointOfSale()
+//        .environment(medusa)
+//}

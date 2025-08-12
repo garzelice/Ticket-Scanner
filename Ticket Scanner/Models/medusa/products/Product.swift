@@ -11,6 +11,15 @@ enum ProductCardSize {
 	case small, regular
 }
 
+struct ProductType: Codable {
+    let id: String?
+    let value: String?
+    let metadata: [String: String]? // assuming metadata may be an object
+    let created_at: String?
+    let updated_at: String?
+    let deleted_at: String?
+}
+
 struct Product: Codable, Identifiable {
     let id: String
     let title: String?
@@ -35,8 +44,8 @@ struct Product: Codable, Identifiable {
     let created_at: String?
     let updated_at: String?
     let deleted_at: String?
-    let metadata: String?
-    let type: String?
+    let metadata: [String: String]?
+    let type: ProductType?
     let collection: String?
     let options: [Options]?
     let tags: [String]?
@@ -79,7 +88,7 @@ struct Product: Codable, Identifiable {
         case sales_channels
     }
 
-	init(id: String, title: String?, subtitle: String?, status: ProductStatus, external_id: String?, description: String?, handle: String?, is_giftcard: Bool?, discountable: Bool?, thumbnail: String?, collection_id: String?, type_id: String?, weight: String?, length: String?, height: String?, width: String?, hs_code: String?, origin_country: String?, mid_code: String?, material: String?, created_at: String?, updated_at: String?, deleted_at: String?, metadata: String?, type: String?, collection: String?, options: [Options]?, tags: [String]?, images: [Images]?, variants: [Variants]?, sales_channels: [SalesChannel]?) {
+    init(id: String, title: String?, subtitle: String?, status: ProductStatus, external_id: String?, description: String?, handle: String?, is_giftcard: Bool?, discountable: Bool?, thumbnail: String?, collection_id: String?, type_id: String?, weight: String?, length: String?, height: String?, width: String?, hs_code: String?, origin_country: String?, mid_code: String?, material: String?, created_at: String?, updated_at: String?, deleted_at: String?, metadata: [String: String]?, type: ProductType?, collection: String?, options: [Options]?, tags: [String]?, images: [Images]?, variants: [Variants]?, sales_channels: [SalesChannel]?) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
@@ -103,8 +112,8 @@ struct Product: Codable, Identifiable {
         self.created_at = created_at
         self.updated_at = updated_at
         self.deleted_at = deleted_at
-        self.metadata = metadata
-        self.type = type
+    self.metadata = metadata
+    self.type = type
         self.collection = collection
         self.options = options
         self.tags = tags
@@ -144,8 +153,13 @@ struct Product: Codable, Identifiable {
         created_at = try values.decodeIfPresent(String.self, forKey: .created_at)
         updated_at = try values.decodeIfPresent(String.self, forKey: .updated_at)
         deleted_at = try values.decodeIfPresent(String.self, forKey: .deleted_at)
-        metadata = try values.decodeIfPresent(String.self, forKey: .metadata)
-        type = try values.decodeIfPresent(String.self, forKey: .type)
+        // Attempt to decode metadata dictionary; if not dictionary, ignore
+        if let metadataDict = try? values.decodeIfPresent([String: String].self, forKey: .metadata) {
+            metadata = metadataDict
+        } else {
+            metadata = nil
+        }
+        type = try values.decodeIfPresent(ProductType.self, forKey: .type)
         collection = try values.decodeIfPresent(String.self, forKey: .collection)
         options = try values.decodeIfPresent([Options].self, forKey: .options)
         tags = try values.decodeIfPresent([String].self, forKey: .tags)

@@ -94,7 +94,9 @@ class APIService {
         }.resume()
     }
 
-    func getProducts(server: Server, completion: @escaping (Result<[Product], Authentication.AuthenticationError>) -> Void) {
+    func getProducts(server: Server,
+                     salesChannelId: String? = nil,
+                     completion: @escaping (Result<[Product], Authentication.AuthenticationError>) -> Void) {
         guard let urlString = server.url else {
             completion(.failure(.custom(errorMessage: "No Medusa URL Stored")))
             return
@@ -110,7 +112,12 @@ class APIService {
             return
         }
 
-        var request = URLRequest(url: url.appending(path: "/admin/products"))
+        var components = URLComponents(url: url.appending(path: "/admin/products"), resolvingAgainstBaseURL: false)
+        if let salesChannelId { // filter to selected sales channel
+            components?.queryItems = [URLQueryItem(name: "sales_channel_id", value: salesChannelId)]
+        }
+        let finalUrl = components?.url ?? url.appending(path: "/admin/products")
+        var request = URLRequest(url: finalUrl)
         request.httpMethod = "GET"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -121,17 +128,21 @@ class APIService {
                 return
             }
 
-            guard let productResponse = try? JSONDecoder().decode(ProductResponse.self, from: data) else {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .useDefaultKeys // keys already snake_case in models
+            if let productResponse = try? decoder.decode(ProductResponse.self, from: data) {
+                guard let products = productResponse.products else {
+                    completion(.failure(.custom(errorMessage: "No Products")))
+                    return
+                }
+                completion(.success(products))
+            } else {
+                // Debug: log raw JSON snippet (truncate for safety)
+                let raw = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+                let truncated = raw.count > 1000 ? String(raw.prefix(1000)) + "…" : raw
+                print("Product decode failed. Raw response:\n" + truncated)
                 completion(.failure(.custom(errorMessage: "Invalid Product Schema")))
-                return
             }
-
-            guard let products = productResponse.products else {
-                completion(.failure(.custom(errorMessage: "No Products")))
-                return
-            }
-
-            completion(.success(products))
         }.resume()
     }
 
