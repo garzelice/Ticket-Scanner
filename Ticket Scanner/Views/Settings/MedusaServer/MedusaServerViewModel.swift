@@ -30,44 +30,4 @@ class MedusaServerViewModel {
         error = nil
         success = false
     }
-
-    func testConnection(completion: @escaping (Result<String, MedusaServerConnectionError>) -> Void) {
-        loading = true
-        error = nil
-        guard let url = URL(string: url) else {
-            loading = false
-            error = "Couldn’t parse URL"
-            completion(.failure(.invalidUrl))
-            return
-        }
-
-        URLSession.shared.dataTask(with: url.appending(path: "/health")) { data, _, error in
-            self.loading = false
-            guard let data = data, error == nil else {
-                self.error = "No Response from Server"
-                completion(.failure(.noResponse))
-                return
-            }
-
-            let str = String(decoding: data, as: UTF8.self)
-            if str != "OK" {
-                self.error = "Server doesn’t seem to be a Medusa Backend Server"
-                completion(.failure(.notMedusa))
-                return
-            }
-        }.resume()
-
-        // Check Login
-        APIService.shared.login(url: url, email: email, password: password) { (result: Result<String, Authentication.AuthenticationError>) in
-            switch result {
-            case let .success(token):
-                print("success")
-                self.success = true
-                completion(.success(token))
-            case let .failure(error):
-                self.error = error.localizedDescription
-                completion(.failure(.authError))
-            }
-        }
-    }
 }

@@ -80,17 +80,7 @@ struct MedusaServer: View {
 
             } else {
                 Button {
-                    viewModel.testConnection { (result: Result<String, MedusaServerConnectionError>) in
-                        switch result {
-                        case let .success(token):
-                            print("success!!! Calling function now")
-                            function(true, token, viewModel.url)
-                        case .failure:
-                            function(false, nil, nil)
-                            return
-                        }
-                        print(result)
-                    }
+                    
                 } label: {
                     Text("Test Connection")
                 }

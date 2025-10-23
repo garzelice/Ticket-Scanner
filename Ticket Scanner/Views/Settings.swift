@@ -12,9 +12,6 @@ struct Settings: View {
     @Environment(Auth.self) private var auth
 
     @State private var editingServer = false
-    @State private var serverUrlInput: String = ""
-    @State private var isTestingUrl = false
-    @State private var testError: String?
 
     @State private var faceIdEnabled = false
     @State private var showAnimations = false
@@ -26,12 +23,11 @@ struct Settings: View {
                 appSection
                 authSection
             }
+			.sheet(isPresented: $editingServer, content: {
+				LoginView()
+			})
             .navigationTitle("Settings")
         }
-        .onAppear { if serverUrlInput.isEmpty { serverUrlInput = auth.medusaUrl ?? "" } }
-        .alert("Error", isPresented: .constant(testError != nil)) {
-            Button("OK") { testError = nil }
-        } message: { Text(testError ?? "Unknown error") }
     }
 
     // MARK: Server Section
@@ -43,85 +39,23 @@ struct Settings: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(auth.storeName ?? "Store")
                                 .font(.headline)
-                            Text(url)
+							Text(url.formatted())
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .textSelection(.enabled)
                         }
                         Spacer()
-                        Button(editingServer ? "Cancel" : "Edit") {
-                            withAnimation { toggleEditing(existing: url) }
+                        Button("Edit") {
+                            editingServer = true
                         }
                     }
-                    if editingServer { editServerForm }
                 }
                 .padding(.vertical, 4)
             } else {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("No server configured").foregroundStyle(.secondary)
-                    editServerForm
                 }
                 .padding(.vertical, 4)
-            }
-        }
-    }
-
-    private func toggleEditing(existing: String) {
-        if editingServer { // cancelling
-            serverUrlInput = existing
-            testError = nil
-            isTestingUrl = false
-        } else {
-            serverUrlInput = existing
-        }
-        editingServer.toggle()
-    }
-
-    private var editServerForm: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            TextField("https://your-medusa-server.com", text: $serverUrlInput)
-                .textContentType(.URL)
-                .keyboardType(.URL)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .disabled(isTestingUrl)
-            if let testError { Text(testError).font(.caption).foregroundStyle(.red) }
-            HStack {
-                Button(role: .destructive) {
-                    auth.logout()
-                    medusa.isAuthenticated = false
-                    serverUrlInput = ""
-                } label: {
-                    Label("Remove", systemImage: "trash")
-                }
-                .disabled(auth.medusaUrl == nil)
-                Spacer()
-                Button(action: testAndSaveServer) {
-                    if isTestingUrl { ProgressView() } else { Text("Save") }
-                }
-                .disabled(isTestingUrl || serverUrlInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .buttonStyle(.borderedProminent)
-            }
-        }
-        .animation(.default, value: isTestingUrl)
-    }
-
-    private func testAndSaveServer() {
-        let url = serverUrlInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !url.isEmpty else { return }
-        testError = nil
-        isTestingUrl = true
-        DispatchQueue.global().async {
-            defer { DispatchQueue.main.async { isTestingUrl = false } }
-            guard URL(string: url) != nil else {
-                DispatchQueue.main.async { testError = "Invalid URL" }
-                return
-            }
-            Thread.sleep(forTimeInterval: 0.5)
-            DispatchQueue.main.async {
-                auth.setServerUrl(url)
-                if auth.storeName == nil { auth.setStoreName("Medusa Store") }
-                withAnimation { editingServer = false }
             }
         }
     }

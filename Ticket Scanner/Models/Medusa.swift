@@ -9,6 +9,7 @@ import Observation
 import SwiftUI
 
 @Observable
+@MainActor
 class Medusa {
     // Authentication gate still used by App; will be set externally after Auth login.
     var isAuthenticated = false
@@ -22,8 +23,7 @@ class Medusa {
 
     // Source of truth for url/token now lives in Auth. We'll inject when calling methods.
     func getSalesChannels(auth: Auth) {
-        guard let urlString = auth.medusaUrl, let token = auth.medusaToken else { return }
-        let server = Server(); server.url = urlString; server.token = token
+        guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
         Task {
             if let salesChannels = try? await apiService.getSalesChannels(server: server) {
                 self.salesChannels = salesChannels
@@ -32,8 +32,7 @@ class Medusa {
     }
 
     func getProducts(auth: Auth, salesChannelId: String? = nil, debug: Bool = false) {
-        guard let urlString = auth.medusaUrl, let token = auth.medusaToken else { return }
-        let server = Server(); server.url = urlString; server.token = token
+        guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
         apiService.getProducts(server: server, salesChannelId: salesChannelId, debug: debug) { (result: Result<[Product], Authentication.AuthenticationError>) in
             switch result {
             case let .success(products):
@@ -45,21 +44,12 @@ class Medusa {
     }
 	
 	func getTickets(auth: Auth, debug: Bool = false) async {
-		guard let urlString = auth.medusaUrl, let token = auth.medusaToken else { return }
-		let server = Server(); server.url = urlString; server.token = token
+		guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
 		do {
 			tickets = try await apiService.getTickets(server: server)
 		} catch {
 			print(error)
 		}
-//		apiService.getTickets(server: server) { (result: Result<[Ticket], Authentication.AuthenticationError>) in
-//			switch result {
-//			case let .success(products):
-//				self.tickets = products
-//			case let .failure(err):
-//				print(err.localizedDescription)
-//			}
-//		}
 	}
 
     func refreshAuth(auth: Auth) async {
@@ -74,7 +64,12 @@ class User {
     var name: String?
 }
 
-class Server {
-    var url: String?
-    var token: String?
+struct Server: Sendable {
+    let url: URL
+    let token: String
+    init?(url: URL?, token: String?) {
+        guard let url, let token else { return nil }
+        self.url = url
+        self.token = token
+    }
 }

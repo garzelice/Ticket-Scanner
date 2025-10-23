@@ -29,19 +29,19 @@ struct Ticket_ScannerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if auth.isAuthenticated {
-                    ContentView()
-                } else {
-                    LoginView()
-                }
-            }
+			ContentView()
             .task {
                 // Attempt token refresh on launch to re-auth silently.
                 await auth.refresh()
                 // Mirror into medusa for any legacy usage
                 medusa.isAuthenticated = auth.isAuthenticated
+				
+				await medusa.getTickets(auth: auth)
             }
+			.sheet(isPresented: .constant(!auth.isAuthenticated), content: {
+				LoginView()
+			})
+			.interactiveDismissDisabled(true)
             .onChange(of: auth.isAuthenticated) { _, newValue in
                 medusa.isAuthenticated = newValue
             }
