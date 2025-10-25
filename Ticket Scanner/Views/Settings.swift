@@ -15,12 +15,15 @@ struct Settings: View {
 
     @State private var faceIdEnabled = false
     @State private var showAnimations = false
+	
+	
 
     var body: some View {
         NavigationStack {
             List {
                 serverSection
                 appSection
+				offlineShopSection
                 authSection
             }
 			.sheet(isPresented: $editingServer, content: {

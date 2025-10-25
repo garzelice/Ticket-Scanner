@@ -21,43 +21,50 @@ struct ScanView: View {
 	
 	var body: some View {
 		NavigationStack {
-			List {
-				Section {
-					HStack(spacing: 12) {
-						Button {
-							isShowingScanner = true
-						} label: {
-							Label("Scan QR Code", systemImage: "qrcode.viewfinder")
-								.frame(maxWidth: .infinity)
-						}
-						.buttonStyle(LargeButton())
-
-						Button {
-							// Placeholder for NFC scan action
-							isShowingNFC = true
-						} label: {
-							Label("Scan NFC", systemImage: "wave.3.left")
-								.frame(maxWidth: .infinity)
-						}
-						.buttonStyle(LargeButton())
-					}
-					.listRowInsets(EdgeInsets())
-				}
-
-				Section("Sold Tickets") {
-					if medusa.tickets.isEmpty {
-						ContentUnavailableView("No Tickets", systemImage: "ticket", description: Text("Tickets you scan will appear here."))
-					} else {
-						ForEach(medusa.tickets, id: \.id) { ticket in
-							VStack(alignment: .leading, spacing: 4) {
-								Text(ticket.id ?? "Unknown ID")
-									.font(.headline)
-								if let status = ticket.status { Text(status).font(.subheadline).foregroundStyle(.secondary) }
-								if let created = ticket.created_at { Text(created).font(.caption2).foregroundStyle(.tertiary) }
+			ZStack(alignment: .bottom) {
+				List {
+					Section("Sold Tickets") {
+						if medusa.tickets.isEmpty {
+							ContentUnavailableView("No Tickets", systemImage: "ticket", description: Text("Sold Tickets will appear here."))
+						} else {
+							ForEach(medusa.tickets, id: \.id) { ticket in
+								VStack(alignment: .leading, spacing: 4) {
+									Text(ticket.id ?? "Unknown ID")
+										.font(.headline)
+									if let status = ticket.status { Text(status).font(.subheadline).foregroundStyle(.secondary) }
+									if let created = ticket.created_at { Text(created).font(.caption2).foregroundStyle(.tertiary) }
+								}
 							}
 						}
 					}
 				}
+				
+				VStack(alignment: .leading) {
+					Text("Scan Method")
+						.font(.title2)
+					HStack {
+						Button {
+							isShowingScanner = true
+						} label: {
+							Label("QR Code", systemImage: "qrcode.viewfinder")
+								.frame(maxWidth: .infinity)
+						}
+						.buttonStyle(LargeButton())
+						
+						Button {
+							// Placeholder for NFC scan action
+							isShowingNFC = true
+						} label: {
+							Label("NFC", systemImage: "wave.3.left")
+								.frame(maxWidth: .infinity)
+						}
+						.buttonStyle(LargeButton())
+					}
+				}
+				.padding()
+				.background(Color(UIColor.systemBackground))
+				.frame(maxWidth: .infinity)
+				.clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 10, topTrailing: 10)))
 			}
 			.listStyle(.insetGrouped)
 			.sheet(isPresented: $isShowingScanner) {

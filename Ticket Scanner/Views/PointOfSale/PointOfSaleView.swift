@@ -10,7 +10,7 @@ import SwiftUI
 struct LargeButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(4)
+			.padding()
             .background(.blue.opacity(0.15))
             .foregroundStyle(.blue)
             .clipShape(.buttonBorder)
