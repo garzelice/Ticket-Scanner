@@ -13,7 +13,7 @@ struct SalesChannelSection: View {
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 0) {
-			ForEach(viewModel.selectedSalesChannels) { salesChannel in
+			if let salesChannel = viewModel.selectedSalesChannel {
 				Section {
 					LazyVGrid(columns: viewModel.adaptiveColumn, alignment: .leading, spacing: 20) {
 						ProductsView(products: salesChannel.products)

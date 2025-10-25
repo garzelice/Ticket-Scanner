@@ -31,9 +31,6 @@ struct PointOfSale: View {
 					VStack {
 						SalesChannelSection()
 							.environment(viewModel)
-						
-						AddSalesChannelButton()
-							.environment(viewModel)
 					}
 					.padding()
 				}

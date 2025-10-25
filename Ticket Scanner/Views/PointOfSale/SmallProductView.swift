@@ -36,9 +36,9 @@ struct SmallProductView: View {
 							.padding(.leading, 12)
 						Spacer()
 						Stepper {} onIncrement: {
-							viewModel.addProductToCard(config: config,variant: variant)
+							viewModel.addProductToCart(config: config,variant: variant)
 						} onDecrement: {
-							viewModel.removeProductFromCard(config: config, variant: variant)
+							viewModel.removeProductFromCart(config: config, variant: variant)
 						}
 					}
 				}

@@ -33,7 +33,7 @@ class PointOfSaleViewModel {
     ]
 
 	var itemsInCart = false
-    var selectedSalesChannels: [SelectedSalesChannel] = []
+    var selectedSalesChannel: SelectedSalesChannel?
 
     var openProduct: ViewConfig?
     var salesChannelSelectOpen: Bool = false
@@ -72,39 +72,37 @@ class PointOfSaleViewModel {
 		}
 	}
 
-	func addProductToCard(config: ViewConfig, variant: Variants) {
+	func addProductToCart(config: ViewConfig, variant: Variants) {
         // Get the product in all Sales-Channels, in case it is in multiple
 
         var updatedVariants: [SelectedVariant] = []
+		
+		guard var salesChannel = selectedSalesChannel else {
+			return print("sales channel not found")
+		}
 
         // First, determine what the updated variants should be by looking at the first instance
         // of the product across all sales channels
-        for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0 == config }) {
-                updatedVariants = product.selectedVariants
+		if let product = salesChannel.products.first(where: { $0 == config }) {
+			updatedVariants = product.selectedVariants
 
-                // Update or add the variant
-                if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
-                    updatedVariants[existingVariantIndex].amount += 1
-                } else {
-                    updatedVariants.append(SelectedVariant(variant: variant, amount: 1))
-                }
-
-                break // Only update from the first instance found
-            }
-        }
+			// Update or add the variant
+			if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
+				updatedVariants[existingVariantIndex].amount += 1
+			} else {
+				updatedVariants.append(SelectedVariant(variant: variant, amount: 1))
+			}
+		}
 
         var updatedOpenProduct: ViewConfig?
 
         // Now apply these updated variants to all instances of the product across all sales channels
-        for salesChannelIndex in 0 ..< selectedSalesChannels.count {
-            if let productIndex = selectedSalesChannels[salesChannelIndex].products.firstIndex(where: { $0 == config }) {
-                selectedSalesChannels[salesChannelIndex].products[productIndex].selectedVariants = updatedVariants
+		if let productIndex = salesChannel.products.firstIndex(where: { $0 == config }) {
+			salesChannel.products[productIndex].selectedVariants = updatedVariants
 
-                // Save the updated product for refreshing UI
-                updatedOpenProduct = selectedSalesChannels[salesChannelIndex].products[productIndex]
-            }
-        }
+			// Save the updated product for refreshing UI
+			updatedOpenProduct = salesChannel.products[productIndex]
+		}
 
 		if openProduct != nil {
 			// Update openProduct to ensure UI refreshes
@@ -123,47 +121,35 @@ class PointOfSaleViewModel {
     // Helper method to get variant amount directly from selectedSalesChannels
 	func getVariantAmount(config: ViewConfig, variant: Variants) -> Int {
         // Since all instances are synchronized, we only need to check the first instance
-        for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0 == config }),
-               let variant = product.selectedVariants.first(where: { $0.variant == variant })
-            {
-                // Return the amount from the first instance found
-                return variant.amount
-            }
-        }
+		if let salesChannel = selectedSalesChannel {
+			if let product = salesChannel.products.first(where: { $0 == config }),
+			   let variant = product.selectedVariants.first(where: { $0.variant == variant })
+			{
+				// Return the amount from the first instance found
+				return variant.amount
+			}
+		}
 
         return 0
     }
 
-    func toggleSalesChannel(salesChannel: SalesChannel, products: [Product]) {
-        if selectedSalesChannels.contains(where: { $0.salesChannel == salesChannel }) {
-            selectedSalesChannels.removeAll(where: { $0.salesChannel == salesChannel })
-        } else {
-            selectedSalesChannels.append(SelectedSalesChannel(salesChannel: salesChannel, products: products.map { product in
-                ViewConfig(product: product, selectedVariants: [])
-            }))
-        }
-    }
-
     init() {}
-
-	init(selectedSalesChannels: [SelectedSalesChannel]) {
-		self.selectedSalesChannels = selectedSalesChannels
-    }
 	
 	init(openProduct: ViewConfig?) {
 		self.openProduct = openProduct
 	}
 
-	func removeProductFromCard(config: ViewConfig, variant: Variants) {
+	func removeProductFromCart(config: ViewConfig, variant: Variants) {
+		guard var channel = selectedSalesChannel else {
+			return print("No Sales Channel")
+		}
+		
         var updatedVariants: [SelectedVariant] = []
         
 		// Check if cart is now empty
-		var cartHasItems = selectedSalesChannels.contains { channel in
-			channel.products.contains { product in
-				!product.selectedVariants.isEmpty
-			}
-		}
+		var cartHasItems = channel.products.contains { product in
+			!product.selectedVariants.isEmpty
+	   }
 		
 		if cartHasItems {
 			complexSuccess()
@@ -171,35 +157,28 @@ class PointOfSaleViewModel {
 
         // First, determine what the updated variants should be by looking at the first instance
         // of the product across all sales channels
-        for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0 == config }) {
-                updatedVariants = product.selectedVariants
+		if let product = channel.products.first(where: { $0 == config }) {
+			updatedVariants = product.selectedVariants
 
-                // Update or remove the variant
-                if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
-                    if updatedVariants[existingVariantIndex].amount > 1 {
-                        updatedVariants[existingVariantIndex].amount -= 1
-                    } else {
-                        // Remove the variant if amount reaches 0
-                        updatedVariants.remove(at: existingVariantIndex)
-                    }
-                }
-
-                break // Only update from the first instance found
-            }
-        }
+			// Update or remove the variant
+			if let existingVariantIndex = updatedVariants.firstIndex(where: { $0.variant == variant }) {
+				if updatedVariants[existingVariantIndex].amount > 1 {
+					updatedVariants[existingVariantIndex].amount -= 1
+				} else {
+					// Remove the variant if amount reaches 0
+					updatedVariants.remove(at: existingVariantIndex)
+				}
+			}
+		}
 
         var updatedOpenProduct: ViewConfig?
-
-        // Now apply these updated variants to all instances of the product across all sales channels
-        for salesChannelIndex in 0 ..< selectedSalesChannels.count {
-            if let productIndex = selectedSalesChannels[salesChannelIndex].products.firstIndex(where: { $0 == config }) {
-                selectedSalesChannels[salesChannelIndex].products[productIndex].selectedVariants = updatedVariants
-
-                // Save the updated product for refreshing UI
-                updatedOpenProduct = selectedSalesChannels[salesChannelIndex].products[productIndex]
-            }
-        }
+		
+		if let productIndex = channel.products.firstIndex(where: { $0 == config }) {
+			channel.products[productIndex].selectedVariants = updatedVariants
+			
+			// Save the updated product for refreshing UI
+			updatedOpenProduct = channel.products[productIndex]
+		}
 
         if openProduct != nil {
             // Update openProduct to ensure UI refreshes
@@ -209,11 +188,9 @@ class PointOfSaleViewModel {
         }
         
         // Check if cart is now empty
-        cartHasItems = selectedSalesChannels.contains { channel in
-            channel.products.contains { product in
-                !product.selectedVariants.isEmpty
-            }
-        }
+		cartHasItems = channel.products.contains { product in
+			!product.selectedVariants.isEmpty
+		}
 		
         withAnimation {
             itemsInCart = cartHasItems
@@ -222,11 +199,11 @@ class PointOfSaleViewModel {
 
     // Add a method to get the current variants for a product directly from the model
     func getProductVariants(config: ViewConfig) -> [SelectedVariant] {
-        for salesChannel in selectedSalesChannels {
-            if let product = salesChannel.products.first(where: { $0.product.id == config.product.id }) {
-                return product.selectedVariants
-            }
-        }
+        
+		if let salesChannel = selectedSalesChannel, let product = salesChannel.products.first(where: { $0.product.id == config.product.id }) {
+			return product.selectedVariants
+		}
+        
         return []
     }
 }
