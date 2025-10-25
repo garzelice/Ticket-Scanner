@@ -10,7 +10,7 @@ import SwiftUI
 struct LargeButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding()
+            .padding(4)
             .background(.blue.opacity(0.15))
             .foregroundStyle(.blue)
             .clipShape(.buttonBorder)
@@ -74,11 +74,14 @@ struct PointOfSale: View {
                     .environment(viewModel)
             }
             
-            .navigationTitle("Point of Sale")
+            .navigationTitle("Offline Shop")
 			.onAppear {
 				// Enable debug once to capture full products JSON for schema alignment
 				medusa.getProducts(auth: auth, debug: true)
-				medusa.getSalesChannels(auth: auth)
+				
+				Task {
+					await medusa.getSalesChannels(auth: auth)
+				}
 				
 				viewModel.prepareHaptics()
             }

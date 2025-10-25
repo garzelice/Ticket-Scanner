@@ -13,7 +13,7 @@
 
 import Foundation
 
-struct SalesChannel: Codable, Identifiable, Equatable {
+struct SalesChannel: Codable, Identifiable, Equatable, Hashable {
     let id: String
     let name: String?
     let description: String?

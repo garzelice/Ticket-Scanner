@@ -28,11 +28,21 @@ struct Settings: View {
 			})
             .navigationTitle("Settings")
         }
+		.onAppear {
+			Task {
+				await medusa.getSalesChannels(auth: auth)
+			}
+		}
+		.background(Color(UIColor.secondarySystemBackground))
+		.toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
+		.toolbarBackground(.visible, for: .tabBar)
+		.toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
+		.toolbarBackground(.visible, for: .navigationBar)
     }
 
     // MARK: Server Section
     private var serverSection: some View {
-        Section("Server") {
+		return Section("Server") {
             if let url = auth.medusaUrl {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .top) {
@@ -59,6 +69,24 @@ struct Settings: View {
             }
         }
     }
+	
+	private var offlineShopSection: some View {
+		@Bindable var medusa = medusa
+		return Section("Offline Shop") {
+//			LabeledContent {
+//
+//			} label: {
+//				Text("Sales Channel")
+//			}
+			if !medusa.salesChannels.isEmpty {
+				Picker("Select Sales Channel", selection: $medusa.selectedSalesChannel) {
+					ForEach(medusa.salesChannels) { salesChannel in
+						Text(salesChannel.name ?? "Name not available")
+					}
+				}
+			}
+		}
+	}
 
     // MARK: App Section
     private var appSection: some View {

@@ -17,18 +17,19 @@ class Medusa {
     var user: User = .init()
     var products: [Product] = []
     var salesChannels: [SalesChannel] = []
+	var selectedSalesChannel: SalesChannel?
 	var tickets: [Ticket] = []
 
     private let apiService = APIService()
 
     // Source of truth for url/token now lives in Auth. We'll inject when calling methods.
-    func getSalesChannels(auth: Auth) {
+    func getSalesChannels(auth: Auth) async {
         guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
-        Task {
-            if let salesChannels = try? await apiService.getSalesChannels(server: server) {
-                self.salesChannels = salesChannels
-            }
-        }
+        
+		if let salesChannels = try? await apiService.getSalesChannels(server: server) {
+			self.salesChannels = salesChannels
+			self.selectedSalesChannel = salesChannels[0]
+		}
     }
 
     func getProducts(auth: Auth, salesChannelId: String? = nil, debug: Bool = false) {

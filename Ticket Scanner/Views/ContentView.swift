@@ -20,7 +20,7 @@ struct ContentView: View {
                 }
             PointOfSale()
                 .tabItem {
-                    Label("Point of Sale", systemImage: "bag")
+                    Label("Offline Shop", systemImage: "bag")
                 }
             Settings()
                 .tabItem {

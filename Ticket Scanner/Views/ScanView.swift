@@ -69,6 +69,11 @@ struct ScanView: View {
 					await medusa.getTickets(auth: auth)
 				}
 			}
+			.background(Color(UIColor.secondarySystemBackground))
+			.toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
+			.toolbarBackground(.visible, for: .tabBar)
+			.toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
+			.toolbarBackground(.visible, for: .navigationBar)
 		}
 	}
 }
