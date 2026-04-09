@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F68FEF9E2E4B52A900B86497 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEF9D2E4B52A900B86497 /* KeychainSwift */; };
 		F68FEFA12E4B632C00B86497 /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA02E4B632C00B86497 /* CodeScanner */; };
+		F68FEFA42E4B632C00B86497 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA32E4B632C00B86497 /* Dependencies */; };
+		F68FEFA52E4B632C00B86497 /* SQLiteData in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA62E4B632C00B86497 /* SQLiteData */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 			files = (
 				F68FEFA12E4B632C00B86497 /* CodeScanner in Frameworks */,
 				F68FEF9E2E4B52A900B86497 /* KeychainSwift in Frameworks */,
+				F68FEFA42E4B632C00B86497 /* Dependencies in Frameworks */,
+				F68FEFA52E4B632C00B86497 /* SQLiteData in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +78,8 @@
 			packageProductDependencies = (
 				F68FEF9D2E4B52A900B86497 /* KeychainSwift */,
 				F68FEFA02E4B632C00B86497 /* CodeScanner */,
+				F68FEFA32E4B632C00B86497 /* Dependencies */,
+				F68FEFA62E4B632C00B86497 /* SQLiteData */,
 			);
 			productName = "Ticket Scanner";
 			productReference = F691BB552D7C9AE000644430 /* Ticket Scanner.app */;
@@ -106,6 +112,8 @@
 			packageReferences = (
 				F68FEF9C2E4B52A900B86497 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 				F68FEF9F2E4B632C00B86497 /* XCRemoteSwiftPackageReference "CodeScanner" */,
+				F68FEFA92E4B632C00B86497 /* XCRemoteSwiftPackageReference "sqlite-data" */,
+				F68FEFAF2E4B632C00B86497 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F691BB562D7C9AE000644430 /* Products */;
@@ -365,6 +373,22 @@
 				minimumVersion = 2.5.2;
 			};
 		};
+		F68FEFA92E4B632C00B86497 /* XCRemoteSwiftPackageReference "sqlite-data" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/sqlite-data";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		F68FEFAF2E4B632C00B86497 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -377,6 +401,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F68FEF9F2E4B632C00B86497 /* XCRemoteSwiftPackageReference "CodeScanner" */;
 			productName = CodeScanner;
+		};
+		F68FEFA32E4B632C00B86497 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F68FEFAF2E4B632C00B86497 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+		F68FEFA62E4B632C00B86497 /* SQLiteData */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F68FEFA92E4B632C00B86497 /* XCRemoteSwiftPackageReference "sqlite-data" */;
+			productName = SQLiteData;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

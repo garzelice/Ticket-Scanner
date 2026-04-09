@@ -250,4 +250,22 @@ final class APIService: @unchecked Sendable {
 		
 		return salesChannels
 	}
+	
+	func scanTicket(server: Server, ticketHash: String) async throws -> Bool {
+		let url = server.url.appending(path: "/admin/tickets/\(ticketHash)/scan")
+		
+		let token = server.token
+		
+		var request = URLRequest(url: url)
+		request.httpMethod = "POST"
+		request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+		request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+		
+		let (data, response) = try await URLSession.shared.data(for: request)
+		guard (response as? HTTPURLResponse)?.statusCode == 200 else { 
+			throw Authentication.AuthenticationError.custom(errorMessage: "Could not scan ticket") 
+		}
+		
+		return true
+	}
 }
