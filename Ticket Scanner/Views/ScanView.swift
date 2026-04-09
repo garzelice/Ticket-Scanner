@@ -135,6 +135,10 @@ struct ScanView: View {
                         .padding(.bottom, 120) // Space for floating scanner button
                     }
                 }
+                .refreshable {
+                    await medusa.syncTickets(auth: auth, isOnline: networkMonitor.isOnline)
+                    triggerHapticFeedback(style: .success)
+                }
                 .background(Color(UIColor.systemGroupedBackground))
                 
                 // Massive Floating Scan Action
