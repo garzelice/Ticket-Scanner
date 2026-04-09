@@ -273,7 +273,12 @@ struct SuccessBanner: View {
 struct TicketRowView: View {
     let ticket: TicketRecord
     
-    private let formatter: RelativeDateTimeFormatter = {
+    private let formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+    private let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter
@@ -300,8 +305,9 @@ struct TicketRowView: View {
                             .background(Color.gray.opacity(0.2))
                             .clipShape(RoundedRectangle(cornerRadius: 4))
                     }
-                    if let created = ticket.createdAt {
-                        Text(created)
+                    if let created = ticket.createdAt,
+                    let createdDate = formatter.date(from: created){
+                        Text(createdDate, format: .dateTime.day().month().year())
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                             .lineLimit(1)
@@ -317,7 +323,7 @@ struct TicketRowView: View {
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.green)
                     if let scannedAt = ticket.scannedAt {
-                        Text(formatter.localizedString(for: scannedAt, relativeTo: Date.now))
+                        Text(relativeFormatter.localizedString(for: scannedAt, relativeTo: Date.now))
                             .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }

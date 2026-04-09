@@ -15,6 +15,10 @@ struct Ticket : Codable {
 	let created_at : String?
 	let event_id : String?
 	let ticket_type_id : String?
+    let customer_email: String
+    let customer_first_name: String?
+    let customer_last_name: String?
+    let order_display_id: Int
 
 	enum CodingKeys: String, CodingKey {
 
@@ -26,6 +30,10 @@ struct Ticket : Codable {
 		case created_at = "created_at"
 		case event_id = "event_id"
 		case ticket_type_id = "ticket_type_id"
+        case customer_email = "customer_email"
+        case customer_first_name = "customer_first_name"
+        case customer_last_name = "customer_last_name"
+        case order_display_id = "order_display_id"
 	}
 
 	init(from decoder: Decoder) throws {
@@ -38,6 +46,10 @@ struct Ticket : Codable {
 		created_at = try values.decodeIfPresent(String.self, forKey: .created_at)
 		event_id = try values.decodeIfPresent(String.self, forKey: .event_id)
 		ticket_type_id = try values.decodeIfPresent(String.self, forKey: .ticket_type_id)
+        customer_email = try values.decode(String.self, forKey: .customer_email)
+        customer_first_name = try values.decodeIfPresent(String.self, forKey: .customer_first_name)
+        customer_last_name = try values.decodeIfPresent(String.self, forKey: .customer_last_name)
+        order_display_id = try values.decode(Int.self, forKey: .order_display_id)
 	}
 
 }
