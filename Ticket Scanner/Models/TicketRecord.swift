@@ -18,6 +18,8 @@ import SQLiteData
     var createdAt: String?
     var eventId: String?
     var ticketTypeId: String?
+    var customerEmail: String?
+    var orderDisplayId: Int?
     var isScanned: Bool
     var scannedAt: Date?
     var needsSync: Bool
@@ -31,6 +33,8 @@ import SQLiteData
         self.createdAt = ticket.created_at
         self.eventId = ticket.event_id
         self.ticketTypeId = ticket.ticket_type_id
+        self.customerEmail = ticket.customer_email
+        self.orderDisplayId = ticket.order_display_id
         self.isScanned = false
         self.scannedAt = nil
         self.needsSync = false
@@ -45,6 +49,8 @@ import SQLiteData
         createdAt: String? = nil,
         eventId: String? = nil,
         ticketTypeId: String? = nil,
+        customerEmail: String? = nil,
+        orderDisplayId: Int? = nil,
         isScanned: Bool = false,
         scannedAt: Date? = nil,
         needsSync: Bool = false
@@ -57,6 +63,8 @@ import SQLiteData
         self.createdAt = createdAt
         self.eventId = eventId
         self.ticketTypeId = ticketTypeId
+        self.customerEmail = customerEmail
+        self.orderDisplayId = orderDisplayId
         self.isScanned = isScanned
         self.scannedAt = scannedAt
         self.needsSync = needsSync

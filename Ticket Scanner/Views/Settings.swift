@@ -15,6 +15,7 @@ struct Settings: View {
 	
 	@State private var faceIdEnabled = false
 	@State private var showAnimations = false
+	@AppStorage("emailUnblurDuration") private var emailUnblurDuration: Double = 3.0
 	
 	var body: some View {
 		NavigationStack {
@@ -95,6 +96,7 @@ struct Settings: View {
 		Section("Ticket Scanner") {
 			Toggle("Show Animations", isOn: $showAnimations)
 			Toggle("Face ID", isOn: $faceIdEnabled)
+			Stepper("Unblur Duration: \(Int(emailUnblurDuration))s", value: $emailUnblurDuration, in: 1...15, step: 1)
 		}
 	}
 	

@@ -272,6 +272,8 @@ struct SuccessBanner: View {
 
 struct TicketRowView: View {
     let ticket: TicketRecord
+    @AppStorage("emailUnblurDuration") private var emailUnblurDuration: Double = 3.0
+    @State private var isEmailVisible = false
     
     private let formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
@@ -284,26 +286,60 @@ struct TicketRowView: View {
         return formatter
     }()
     
+    var isEffectivelyScanned: Bool {
+        ticket.isScanned || ticket.status?.lowercased() == "used" || ticket.status?.lowercased() == "scanned"
+    }
+    
     var body: some View {
         HStack(spacing: 16) {
-            // Status Indicator
-            Circle()
-                .fill(ticket.isScanned ? Color.green : (ticket.needsSync ? Color.orange : Color.gray.opacity(0.3)))
-                .frame(width: 12, height: 12)
-            
             VStack(alignment: .leading, spacing: 4) {
-                Text(ticket.hash?.prefix(10) ?? "Unknown")
-                    .font(.system(.headline, design: .monospaced).weight(.bold))
-                    .foregroundStyle(.primary)
+                if let orderId = ticket.orderDisplayId {
+                    Text("#\(orderId)")
+                        .font(.system(.title, design: .rounded).weight(.heavy))
+                        .foregroundStyle(isEffectivelyScanned ? .secondary : .primary)
+                        .strikethrough(isEffectivelyScanned)
+                } else {
+                    Text(ticket.hash?.prefix(10) ?? "Unknown")
+                        .font(.system(.headline, design: .monospaced).weight(.bold))
+                        .foregroundStyle(isEffectivelyScanned ? .secondary : .primary)
+                        .strikethrough(isEffectivelyScanned)
+                }
+                
+                if let email = ticket.customerEmail {
+                    Text(email)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .blur(radius: isEmailVisible ? 0 : 8)
+                        .animation(.easeInOut, value: isEmailVisible)
+                        .onTapGesture {
+                            if !isEmailVisible {
+                                isEmailVisible = true
+                                Task {
+                                    try? await Task.sleep(for: .seconds(emailUnblurDuration))
+                                    await MainActor.run {
+                                        isEmailVisible = false
+                                    }
+                                }
+                            }
+                        }
+                }
                 
                 HStack(spacing: 8) {
-                    if let status = ticket.status {
+                    if isEffectivelyScanned {
+                        Text((ticket.isScanned ? "SCANNED" : ticket.status?.uppercased()) ?? "SCANNED")
+                            .font(.system(.caption, design: .rounded).weight(.bold))
+                            .foregroundStyle(.green)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.green.opacity(0.15))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    } else if let status = ticket.status {
                         Text(status.uppercased())
-                            .font(.system(.caption2, design: .rounded).weight(.bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
+                            .font(.system(.caption, design: .rounded).weight(.bold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(Color.gray.opacity(0.2))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
                     if let created = ticket.createdAt,
                     let createdDate = formatter.date(from: created){
@@ -313,11 +349,12 @@ struct TicketRowView: View {
                             .lineLimit(1)
                     }
                 }
+                .padding(.top, 2)
             }
             
             Spacer(minLength: 16)
             
-            if ticket.isScanned {
+            if isEffectivelyScanned {
                 VStack(alignment: .trailing, spacing: 4) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 14, weight: .bold))
@@ -334,6 +371,7 @@ struct TicketRowView: View {
                     .foregroundStyle(.orange)
             }
         }
+        .opacity(isEffectivelyScanned ? 0.6 : 1.0)
     }
 }
 

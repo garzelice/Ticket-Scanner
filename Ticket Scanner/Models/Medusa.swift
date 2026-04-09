@@ -86,8 +86,8 @@ class Medusa {
                     try db.execute(
                         sql: """
                             INSERT OR REPLACE INTO ticketRecords 
-                            (id, hash, customerId, status, expiresAt, createdAt, eventId, ticketTypeId, isScanned, scannedAt, needsSync)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            (id, hash, customerId, status, expiresAt, createdAt, eventId, ticketTypeId, customerEmail, orderDisplayId, isScanned, scannedAt, needsSync)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                             """,
                         arguments: [
                             ticketId,
@@ -98,6 +98,8 @@ class Medusa {
                             serverTicket.created_at,
                             serverTicket.event_id,
                             serverTicket.ticket_type_id,
+                            serverTicket.customer_email,
+                            serverTicket.order_display_id,
                             isScanned ? 1 : 0,
                             scannedAt,
                             needsSync ? 1 : 0
