@@ -5,11 +5,15 @@
 //  Created by Eric Wätke on 08.03.25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct Ticket_ScannerApp: App {
+    @State private var medusa = Medusa()
+	@State var auth: Auth = .init()
+    @StateObject var authentication = Authentication()
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,7 +29,24 @@ struct Ticket_ScannerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+			ContentView()
+            .task {
+                // Attempt token refresh on launch to re-auth silently.
+                await auth.refresh()
+                // Mirror into medusa for any legacy usage
+                medusa.isAuthenticated = auth.isAuthenticated
+				
+				await medusa.getTickets(auth: auth)
+            }
+			.sheet(isPresented: .constant(!auth.isAuthenticated), content: {
+				LoginView()
+			})
+			.interactiveDismissDisabled(true)
+            .onChange(of: auth.isAuthenticated) { _, newValue in
+                medusa.isAuthenticated = newValue
+            }
+            .environment(medusa)
+            .environment(auth)
         }
         .modelContainer(sharedModelContainer)
     }
