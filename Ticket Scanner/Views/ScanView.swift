@@ -8,6 +8,7 @@
 import SwiftUI
 import CodeScanner
 import Network
+import Foundation
 
 struct ScanView: View {
     @Environment(Medusa.self) private var medusa
@@ -18,6 +19,7 @@ struct ScanView: View {
     @State private var isShowingNFC = false
     @State private var lastScannedTicketHash: String?
     @State private var scanError: String?
+    @State private var statusMessage: String?
     
     func handleScan(result: Result<ScanResult, ScanError>) {
         isShowingScanner = false
@@ -31,112 +33,151 @@ struct ScanView: View {
                 if ticket.isScanned {
                     scanError = "Ticket already scanned"
                     lastScannedTicketHash = ticket.hash
+                    triggerHapticFeedback(style: .error)
                 } else {
                     Task {
                         await medusa.markTicketScanned(scannedHash, isOnline: networkMonitor.isOnline, auth: auth)
                     }
                     lastScannedTicketHash = ticket.hash
+                    triggerHapticFeedback(style: .success)
+                    withAnimation {
+                        statusMessage = "Scanned: \(String(scannedHash.prefix(8)))"
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        withAnimation { statusMessage = nil }
+                    }
                 }
             } else {
                 scanError = "Unknown ticket"
+                triggerHapticFeedback(style: .error)
             }
         case .failure(let error):
             scanError = error.localizedDescription
+            triggerHapticFeedback(style: .error)
         }
+    }
+    
+    private func triggerHapticFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(style)
     }
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                List {
-                    if !networkMonitor.isOnline {
-                        Section {
-                            HStack {
-                                Image(systemName: "wifi.slash")
-                                    .foregroundStyle(.orange)
-                                Text("Offline - scans will sync when online")
-                                    .foregroundStyle(.orange)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // Banners section
+                        VStack(spacing: 0) {
+                            if !networkMonitor.isOnline {
+                                StatusBanner(
+                                    icon: "wifi.slash",
+                                    text: "Offline Mode Active",
+                                    subtext: "Scans will sync automatically",
+                                    color: .orange
+                                )
+                            }
+                            
+                            if medusa.pendingSyncCount > 0 {
+                                StatusBanner(
+                                    icon: "arrow.triangle.2.circlepath",
+                                    text: "\(medusa.pendingSyncCount) Pending Scans",
+                                    subtext: medusa.isSyncing ? "Syncing now..." : "Waiting for connection",
+                                    color: .blue
+                                )
                             }
                         }
-                    }
-                    
-                    if medusa.pendingSyncCount > 0 {
-                        Section {
-                            HStack {
-                                Image(systemName: "arrow.triangle.2.circlepath")
-                                    .foregroundStyle(.orange)
-                                Text("\(medusa.pendingSyncCount) scan(s) pending sync")
-                                    .foregroundStyle(.orange)
-                            }
-                        }
-                    }
-                    
-                    Section("Sold Tickets") {
-                        if medusa.tickets.isEmpty {
-                            ContentUnavailableView("No Tickets", systemImage: "ticket", description: Text("Sold Tickets will appear here."))
-                        } else {
-                            ForEach(medusa.tickets, id: \.id) { ticket in
-                                TicketRowView(ticket: ticket)
-                            }
-                        }
-                    }
-                }
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    if let error = scanError {
-                        HStack {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.red)
-                            Text(error)
-                                .foregroundStyle(.red)
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Scan Method")
-                            .font(.title2)
-                        Spacer()
-                        if medusa.isSyncing {
-                            ProgressView()
-                        }
-                    }
-                    HStack {
-                        Button {
-                            isShowingScanner = true
-                        } label: {
-                            Label("QR Code", systemImage: "qrcode.viewfinder")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
                         
-                        Button {
-                            isShowingNFC = true
-                        } label: {
-                            Label("NFC", systemImage: "wave.3.left")
-                                .frame(maxWidth: .infinity)
+                        VStack(alignment: .leading, spacing: 24) {
+                            if let error = scanError {
+                                ErrorBanner(message: error)
+                                    .padding(.top, 16)
+                            } else if let success = statusMessage {
+                                SuccessBanner(message: success)
+                                    .padding(.top, 16)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    if medusa.isSyncing {
+                                        ProgressView()
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.top, 16)
+                                
+                                if medusa.tickets.isEmpty {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "ticket.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundStyle(.quaternary)
+                                        Text("No tickets found.")
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 40)
+                                } else {
+                                    LazyVStack(spacing: 1) {
+                                        ForEach(medusa.tickets, id: \.id) { ticket in
+                                            TicketRowView(ticket: ticket)
+                                                .padding(.horizontal, 20)
+                                                .padding(.vertical, 16)
+                                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                        }
+                                    }
+//                                    .background(Color(UIColor.separator).opacity(0.3))
+//                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    .padding(.horizontal, 16)
+                                }
+                            }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(true)
+                        .padding(.bottom, 120) // Space for floating scanner button
                     }
                 }
-                .padding()
-                .background(Color(UIColor.systemBackground))
-                .frame(maxWidth: .infinity)
-                .clipShape(UnevenRoundedRectangle(cornerRadii: .init(topLeading: 10, topTrailing: 10)))
+                .background(Color(UIColor.systemGroupedBackground))
+                
+                // Massive Floating Scan Action
+                VStack {
+                    Button {
+                        triggerHapticFeedback(style: .success) // initial feedback
+                        isShowingScanner = true
+                    } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: "qrcode.viewfinder")
+                                .font(.system(size: 28, weight: .bold))
+                            Text("Ticket Scannen")
+                                .font(.system(size: 20, weight: .bold))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .shadow(color: Color.accentColor.opacity(0.4), radius: 16, x: 0, y: 8)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 32)
+                }
             }
-            .listStyle(.insetGrouped)
             .sheet(isPresented: $isShowingScanner) {
                 CodeScannerView(codeTypes: [.qr], simulatedData: "ticket-123", completion: handleScan)
+                    .ignoresSafeArea()
             }
-            .navigationTitle("Scan Tickets")
+            .navigationTitle("Tickets")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Task {
+                            triggerHapticFeedback(style: .success)
                             await medusa.syncTickets(auth: auth, isOnline: networkMonitor.isOnline)
                         }
                     } label: {
                         Image(systemName: "arrow.triangle.2.circlepath")
+                            .fontWeight(.semibold)
+                            .rotationEffect(.degrees(medusa.isSyncing ? 360 : 0))
+                            .animation(medusa.isSyncing ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: medusa.isSyncing)
                     }
                     .disabled(medusa.isSyncing || !networkMonitor.isOnline)
                 }
@@ -146,46 +187,157 @@ struct ScanView: View {
                     await medusa.loadTickets()
                 }
             }
-            .background(Color(UIColor.secondarySystemBackground))
-            .toolbarBackground(Color(UIColor.systemBackground), for: .tabBar)
-            .toolbarBackground(.visible, for: .tabBar)
-            .toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }
 
+// MARK: - Components
+
+struct StatusBanner: View {
+    let icon: String
+    let text: String
+    let subtext: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(color.opacity(0.2))
+                .clipShape(Circle())
+                .overlay(Circle().stroke(color.opacity(0.5), lineWidth: 1))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(text)
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .foregroundStyle(color)
+                Text(subtext)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(color.opacity(0.1))
+        .overlay(alignment: .bottom) {
+            Rectangle().frame(height: 1).foregroundStyle(color.opacity(0.2))
+        }
+    }
+}
+
+struct ErrorBanner: View {
+    let message: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title3)
+            Text(message)
+                .font(.subheadline.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.red.opacity(0.15))
+        .foregroundStyle(Color.red)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 16)
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+}
+
+struct SuccessBanner: View {
+    let message: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.title3)
+            Text(message)
+                .font(.subheadline.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color.green.opacity(0.15))
+        .foregroundStyle(Color.green)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 16)
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+}
+
+
+
 struct TicketRowView: View {
     let ticket: TicketRecord
     
+    private let formatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter
+    }()
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
+            // Status Indicator
+            Circle()
+                .fill(ticket.isScanned ? Color.green : (ticket.needsSync ? Color.orange : Color.gray.opacity(0.3)))
+                .frame(width: 12, height: 12)
+            
             VStack(alignment: .leading, spacing: 4) {
-                Text(ticket.hash ?? "No Hash Available")
-                    .font(.headline)
-                if let status = ticket.status { 
-                    Text(status).font(.subheadline).foregroundStyle(.secondary) 
-                }
-                if let created = ticket.createdAt { 
-                    Text(created).font(.caption2).foregroundStyle(.tertiary) 
+                Text(ticket.hash?.prefix(10) ?? "Unknown")
+                    .font(.system(.headline, design: .monospaced).weight(.bold))
+                    .foregroundStyle(.primary)
+                
+                HStack(spacing: 8) {
+                    if let status = ticket.status {
+                        Text(status.uppercased())
+                            .font(.system(.caption2, design: .rounded).weight(.bold))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
+                    if let created = ticket.createdAt {
+                        Text(created)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                            .lineLimit(1)
+                    }
                 }
             }
-            Spacer()
+            
+            Spacer(minLength: 16)
+            
             if ticket.isScanned {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Image(systemName: "checkmark.circle.fill")
+                VStack(alignment: .trailing, spacing: 4) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.green)
                     if let scannedAt = ticket.scannedAt {
-                        Text(scannedAt, style: .time)
-                            .font(.caption2)
+                        Text(formatter.localizedString(for: scannedAt, relativeTo: Date.now))
+                            .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }
                 }
             } else if ticket.needsSync {
                 Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.orange)
             }
         }
+    }
+}
+
+// MARK: - Helpers
+
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 
