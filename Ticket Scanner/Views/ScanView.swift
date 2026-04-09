@@ -315,17 +315,6 @@ struct TicketRowView: View {
                         .foregroundStyle(.secondary)
                         .blur(radius: isEmailVisible ? 0 : 8)
                         .animation(.easeInOut, value: isEmailVisible)
-                        .onTapGesture {
-                            if !isEmailVisible {
-                                isEmailVisible = true
-                                Task {
-                                    try? await Task.sleep(for: .seconds(emailUnblurDuration))
-                                    await MainActor.run {
-                                        isEmailVisible = false
-                                    }
-                                }
-                            }
-                        }
                 }
                 
                 HStack(spacing: 8) {
@@ -373,6 +362,18 @@ struct TicketRowView: View {
                 Image(systemName: "arrow.triangle.2.circlepath")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.orange)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if !isEmailVisible {
+                isEmailVisible = true
+                Task {
+                    try? await Task.sleep(for: .seconds(emailUnblurDuration))
+                    await MainActor.run {
+                        isEmailVisible = false
+                    }
+                }
             }
         }
         .opacity(isEffectivelyScanned ? 0.6 : 1.0)
