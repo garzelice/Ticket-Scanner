@@ -5,10 +5,7 @@
 //  Created by Eric Wätke on 17.03.25.
 //
 
-
-import Observation
-import SwiftUI
-import CoreHaptics
+import Foundation
 
 struct SelectedVariant: Identifiable {
     var id: String

@@ -18,16 +18,16 @@ struct ContentView: View {
                 .tabItem {
                     Label("Scan Tickets", systemImage: "barcode.viewfinder")
                 }
-            PointOfSale()
-                .tabItem {
-                    Label("Offline Shop", systemImage: "bag")
-                }
+//            PointOfSale()
+//                .tabItem {
+//                    Label("Offline Shop", systemImage: "bag")
+//                }
             Settings()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
         }
-		
+        
     }
 }
 
