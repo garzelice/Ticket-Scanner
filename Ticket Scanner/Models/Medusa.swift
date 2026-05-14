@@ -59,22 +59,55 @@ class Medusa {
         }
     }
 
-    func syncTickets(auth: Auth, isOnline: Bool) async {
-        guard isOnline else { return }
-        guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
-        
-        isSyncing = true
-        defer { isSyncing = false }
-        
-        do {
-            let serverTickets = try await apiService.getTickets(server: server)
+	func syncTickets(auth: Auth, isOnline: Bool) async {
+		guard isOnline else { return }
+		guard let server = Server(url: auth.medusaUrl, token: auth.medusaToken) else { return }
+		
+		isSyncing = true
+		defer { isSyncing = false }
+		
+		do {
+			var serverTickets: [Ticket] = []
+			var offset = 0
+			let pageSize = 100
+			
+			while true {
+				print("[Pagination] Fetching tickets offset=\(offset) limit=\(pageSize)")
+				let response = try await apiService.getTickets(server: server, offset: offset, limit: pageSize)
+				let fetchedCount = response.data?.count ?? 0
+				print("[Pagination] Got \(fetchedCount) tickets | count=\(response.count ?? -1) limit=\(response.limit ?? -1) offset=\(response.offset ?? -1)")
+				
+				if let tickets = response.data {
+					serverTickets.append(contentsOf: tickets)
+				}
+				
+				if let totalCount = response.count {
+					// Backend provided total count; use it to decide if we're done
+					offset += pageSize
+					if offset >= totalCount {
+						print("[Pagination] Reached end: offset=\(offset) >= count=\(totalCount)")
+						break
+					}
+				} else {
+					// No total count from backend — stop when we got fewer items than requested
+					if fetchedCount < pageSize {
+						print("[Pagination] Reached end: fetched \(fetchedCount) < pageSize \(pageSize)")
+						break
+					}
+					offset += pageSize
+				}
+			}
+			
+			print("[Pagination] Total tickets fetched: \(serverTickets.count)")
+            
+            let syncedTickets = serverTickets
             
             let existingTickets: [TicketRecord] = try await database.read { db in
                 try TicketRecord.fetchAll(db)
             }
             
             try await database.write { db in
-                for serverTicket in serverTickets {
+                for serverTicket in syncedTickets {
                     guard let ticketId = serverTicket.id else { continue }
                     
                     let existing = existingTickets.first { $0.id == ticketId }

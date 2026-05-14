@@ -227,12 +227,20 @@ final class APIService: @unchecked Sendable {
 		return salesChannels
 	}
 	
-	func getTickets(server: Server) async throws -> [Ticket] {
+	func getTickets(server: Server, offset: Int = 0, limit: Int = 100) async throws -> TicketResponse {
 		let url = server.url
-		
 		let token = server.token
 		
-		var request = URLRequest(url: url.appending(path: "/admin/tickets"))
+		var components = URLComponents(url: url.appending(path: "/admin/tickets"), resolvingAgainstBaseURL: false)
+		components?.queryItems = [
+			URLQueryItem(name: "offset", value: String(offset)),
+			URLQueryItem(name: "limit", value: String(limit))
+		]
+		guard let finalUrl = components?.url else {
+			throw Authentication.AuthenticationError.custom(errorMessage: "Invalid URL")
+		}
+		
+		var request = URLRequest(url: finalUrl)
 		request.httpMethod = "GET"
 		request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 		request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
@@ -244,11 +252,7 @@ final class APIService: @unchecked Sendable {
 			throw Authentication.AuthenticationError.custom(errorMessage: "Invalid Product Schema")
 		}
 		
-		guard let salesChannels = ticketsResponse.data else {
-			throw Authentication.AuthenticationError.custom(errorMessage: "No Sales Channel")
-		}
-		
-		return salesChannels
+		return ticketsResponse
 	}
 	
 	func scanTicket(server: Server, ticketHash: String) async throws -> Bool {
