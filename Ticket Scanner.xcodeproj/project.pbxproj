@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F68777D62F88112B00F804B2 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = F68777D52F88112B00F804B2 /* AppIcon.icon */; };
 		F68FEF9E2E4B52A900B86497 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEF9D2E4B52A900B86497 /* KeychainSwift */; };
 		F68FEFA12E4B632C00B86497 /* CodeScanner in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA02E4B632C00B86497 /* CodeScanner */; };
 		F68FEFA42E4B632C00B86497 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = F68FEFA32E4B632C00B86497 /* Dependencies */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F68777D52F88112B00F804B2 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		F691BB552D7C9AE000644430 /* Ticket Scanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ticket Scanner.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -43,6 +45,7 @@
 		F691BB4C2D7C9AE000644430 = {
 			isa = PBXGroup;
 			children = (
+				F68777D52F88112B00F804B2 /* AppIcon.icon */,
 				F691BB572D7C9AE000644430 /* Ticket Scanner */,
 				F691BB562D7C9AE000644430 /* Products */,
 			);
@@ -130,6 +133,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F68777D62F88112B00F804B2 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +274,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Ticket Scanner/Ticket Scanner.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -304,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Ticket Scanner/Ticket Scanner.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

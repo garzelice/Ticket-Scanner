@@ -162,6 +162,29 @@ class Medusa {
         }
     }
 
+    func clearTickets() async {
+        do {
+            try await database.write { db in
+                try db.execute(sql: "DELETE FROM ticketRecords")
+            }
+            tickets = []
+            pendingSyncCount = 0
+        } catch {
+            print("Failed to clear tickets: \(error)")
+        }
+    }
+
+    func reset() async {
+        await clearTickets()
+        isAuthenticated = false
+        serverName = nil
+        user = User()
+        products = []
+        salesChannels = []
+        selectedSalesChannel = nil
+        isSyncing = false
+    }
+
     func refreshAuth(auth: Auth) async {
         await auth.refresh()
         isAuthenticated = auth.isAuthenticated

@@ -60,6 +60,9 @@ struct Ticket_ScannerApp: App {
             .interactiveDismissDisabled(true)
             .onChange(of: auth.isAuthenticated) { _, newValue in
                 medusa.isAuthenticated = newValue
+                if !newValue {
+                    Task { await medusa.clearTickets() }
+                }
             }
             .environment(medusa)
             .environment(auth)
