@@ -17,9 +17,8 @@ struct ScanView: View {
     
     @State private var isShowingScanner = false
     @State private var isShowingNFC = false
-    @State private var lastScannedTicketHash: String?
     @State private var scanError: String?
-    @State private var statusMessage: String?
+    @State private var scannedTicketForConfirmation: TicketRecord?
     
     func handleScan(result: Result<ScanResult, ScanError>) {
         isShowingScanner = false
@@ -30,22 +29,12 @@ struct ScanView: View {
             let scannedHash = scanResult.string
             print(scannedHash)
             if let ticket = medusa.tickets.first(where: { $0.hash == scannedHash }) {
-                if ticket.isScanned {
+                if ticket.isScanned || ticket.status?.lowercased() == "used" || ticket.status?.lowercased() == "scanned" {
                     scanError = String(localized: "Ticket already scanned")
-                    lastScannedTicketHash = ticket.hash
                     triggerHapticFeedback(style: .error)
                 } else {
-                    Task {
-                        await medusa.markTicketScanned(scannedHash, isOnline: networkMonitor.isOnline, auth: auth)
-                    }
-                    lastScannedTicketHash = ticket.hash
+                    scannedTicketForConfirmation = ticket
                     triggerHapticFeedback(style: .success)
-                    withAnimation {
-                        statusMessage = String(localized: "Scanned: \(String(scannedHash.prefix(8)))")
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        withAnimation { statusMessage = nil }
-                    }
                 }
             } else {
                 scanError = String(localized: "Unknown ticket")
@@ -92,12 +81,6 @@ struct ScanView: View {
                     
                     if let error = scanError {
                         ErrorBanner(message: error)
-                            .padding(.top, 16)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    } else if let success = statusMessage {
-                        SuccessBanner(message: success)
                             .padding(.top, 16)
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .listRowBackground(Color.clear)
@@ -196,6 +179,9 @@ struct ScanView: View {
             .sheet(isPresented: $isShowingScanner) {
                 CodeScannerView(codeTypes: [.qr], simulatedData: "ticket-123", completion: handleScan)
                     .ignoresSafeArea()
+            }
+            .sheet(item: $scannedTicketForConfirmation) { ticket in
+                ScanConfirmationView(ticket: ticket)
             }
             .navigationTitle("Tickets")
             .toolbar {
@@ -411,6 +397,109 @@ struct TicketRowView: View {
             }
         }
         .opacity(isEffectivelyScanned ? 0.6 : 1.0)
+    }
+}
+
+// MARK: - Scan Confirmation Sheet
+
+struct ScanConfirmationView: View {
+    let ticket: TicketRecord
+    @Environment(Medusa.self) private var medusa
+    @Environment(Auth.self) private var auth
+    @Environment(NetworkMonitor.self) private var networkMonitor
+    @Environment(\.dismiss) private var dismiss
+
+    private let formatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 56))
+                            .foregroundStyle(.green)
+                            .padding(.top, 32)
+
+                        Text("Review Ticket")
+                            .font(.title2.weight(.bold))
+
+                        VStack(spacing: 0) {
+                            if let orderId = ticket.orderDisplayId {
+                                DetailRow(label: "Order No.", value: "#\(orderId)")
+                                Divider()
+                            }
+                            if let email = ticket.customerEmail {
+                                DetailRow(label: "Email", value: email)
+                                Divider()
+                            }
+                            if let typeName = ticket.ticketTypeName {
+                                DetailRow(label: "Ticket Type", value: typeName)
+                                Divider()
+                            }
+                            if let created = ticket.createdAt,
+                               let date = formatter.date(from: created) {
+                                DetailRow(label: "Purchased", value: date.formatted(date: .abbreviated, time: .shortened))
+                            }
+                        }
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal, 20)
+                    }
+                }
+
+                Button {
+                    Task {
+                        guard let hash = ticket.hash else { return }
+                        await medusa.markTicketScanned(hash, isOnline: networkMonitor.isOnline, auth: auth)
+                        dismiss()
+                    }
+                } label: {
+                    Text("Mark as Scanned")
+                        .font(.headline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+            }
+            .background(Color(UIColor.systemGroupedBackground))
+            .navigationTitle("Confirm Scan")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct DetailRow: View {
+    let label: LocalizedStringKey
+    let value: String
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Text(value)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 

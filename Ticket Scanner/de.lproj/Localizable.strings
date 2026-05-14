@@ -83,3 +83,11 @@
 "No Products" = "Keine Produkte";
 "No Sales Channel" = "Kein Verkaufskanal";
 "Could not scan ticket" = "Ticket konnte nicht gescannt werden";
+
+// ScanConfirmationView
+"Review Ticket" = "Ticket prüfen";
+"Order No." = "Bestellungnummer";
+"Ticket Type" = "Tickettyp";
+"Purchased" = "Gekauft am";
+"Mark as Scanned" = "Als gescannt markieren";
+"Confirm Scan" = "Scan bestätigen";
