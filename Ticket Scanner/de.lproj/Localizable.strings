@@ -1,0 +1,85 @@
+// ContentView
+"Scan Tickets" = "Tickets scannen";
+"Settings" = "Einstellungen";
+
+// ScanView
+"Offline Mode Active" = "Offline-Modus aktiv";
+"Scans will sync automatically" = "Scans werden automatisch synchronisiert";
+"%lld Pending Scans" = "%lld ausstehende Scans";
+"Syncing now..." = "Synchronisiere …";
+"Waiting for connection" = "Warte auf Verbindung";
+"No tickets found." = "Keine Tickets gefunden.";
+"Ticket already scanned" = "Bereits gescannt";
+"Unknown ticket" = "Unbekanntes Ticket";
+"Scanned: %@" = "Gescannt: %@";
+"Revert" = "Rückgängig";
+"Check In" = "Check-In";
+"Ticket Scannen" = "Ticket scannen";
+"Tickets" = "Tickets";
+"SCANNED" = "GESCANNT";
+
+// Settings
+"Server" = "Server";
+"Edit" = "Bearbeiten";
+"No server configured" = "Kein Server konfiguriert";
+"Saleschannel" = "Verkaufskanal";
+"Select Sales Channel" = "Verkaufskanal auswählen";
+"Name not available" = "Name nicht verfügbar";
+"Ticket Scanner" = "Ticket Scanner";
+"Show Animations" = "Animationen anzeigen";
+"Face ID" = "Face ID";
+"Unblur Duration: %llds" = "Entblur-Dauer: %llds";
+"Account" = "Account";
+"Logout" = "Abmelden";
+"Not logged in" = "Nicht angemeldet";
+
+// LoginView
+"Login" = "Anmelden";
+"Error" = "Fehler";
+"OK" = "OK";
+"Enter Medusa Server URL" = "Medusa-Server-URL eingeben";
+"https://your-medusa-server.com" = "https://dein-medusa-server.com";
+"Test & Save Server" = "Server testen & speichern";
+"Failed to parse server URL" = "Server-URL konnte nicht gelesen werden";
+"Invalid URL" = "Ungültige URL";
+"No response from server" = "Keine Antwort vom Server";
+"Server isn't a Medusa backend" = "Server ist kein Medusa-Backend";
+"Auth error" = "Authentifizierungsfehler";
+"Store" = "Shop";
+"Edit" = "Bearbeiten";
+"Email" = "E-Mail";
+"you@example.com" = "du@beispiel.de";
+"Password" = "Passwort";
+"Done" = "Fertig";
+"Unknown error" = "Unbekannter Fehler";
+
+// MedusaServerView
+"Medusa URL" = "Medusa-URL";
+"https://…" = "https://…";
+"E-Mail" = "E-Mail";
+"user@example.com" = "benutzer@beispiel.de";
+"Required" = "Erforderlich";
+"Testing Connection" = "Verbindung wird getestet";
+"Test OK" = "Test OK";
+"Unknown Error" = "Unbekannter Fehler";
+"Test Connection" = "Verbindung testen";
+
+// TicketRowView
+"Unknown" = "Unbekannt";
+
+// Authentication errors
+"Email or Password is not correct" = "E-Mail oder Passwort ist nicht korrekt";
+"You have denied FaceID, please allow this in the device settings" = "FaceID wurde abgelehnt. Bitte in den Geräteeinstellungen erlauben";
+"You have not yet added your Face to FaceID, please do that" = "Kein Gesicht für FaceID hinterlegt";
+"You have not yet added your Finger to TouchID, please do that" = "Kein Fingerabdruck für TouchID hinterlegt";
+"Your face was not recognized" = "Gesicht wurde nicht erkannt";
+"Need to access bios please" = "Benötige Zugriff auf biometrische Daten";
+
+// APIService errors
+"Couldnt connect to medusa" = "Keine Verbindung zu Medusa";
+"Invalid Product Schema" = "Ungültiges Produktschema";
+"No Stores" = "Keine Shops";
+"No Response from Medusa" = "Keine Antwort von Medusa";
+"No Products" = "Keine Produkte";
+"No Sales Channel" = "Kein Verkaufskanal";
+"Could not scan ticket" = "Ticket konnte nicht gescannt werden";

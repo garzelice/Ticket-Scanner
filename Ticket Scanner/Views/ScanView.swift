@@ -31,7 +31,7 @@ struct ScanView: View {
             print(scannedHash)
             if let ticket = medusa.tickets.first(where: { $0.hash == scannedHash }) {
                 if ticket.isScanned {
-                    scanError = "Ticket already scanned"
+                    scanError = String(localized: "Ticket already scanned")
                     lastScannedTicketHash = ticket.hash
                     triggerHapticFeedback(style: .error)
                 } else {
@@ -41,14 +41,14 @@ struct ScanView: View {
                     lastScannedTicketHash = ticket.hash
                     triggerHapticFeedback(style: .success)
                     withAnimation {
-                        statusMessage = "Scanned: \(String(scannedHash.prefix(8)))"
+                        statusMessage = String(localized: "Scanned: \(String(scannedHash.prefix(8)))")
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                         withAnimation { statusMessage = nil }
                     }
                 }
             } else {
-                scanError = "Unknown ticket"
+                scanError = String(localized: "Unknown ticket")
                 triggerHapticFeedback(style: .error)
             }
         case .failure(let error):
@@ -69,8 +69,8 @@ struct ScanView: View {
                     if !networkMonitor.isOnline {
                         StatusBanner(
                             icon: "wifi.slash",
-                            text: "Offline Mode Active",
-                            subtext: "Scans will sync automatically",
+                            text: String(localized: "Offline Mode Active"),
+                            subtext: String(localized: "Scans will sync automatically"),
                             color: .orange
                         )
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -81,8 +81,8 @@ struct ScanView: View {
                     if medusa.pendingSyncCount > 0 {
                         StatusBanner(
                             icon: "arrow.triangle.2.circlepath",
-                            text: "\(medusa.pendingSyncCount) Pending Scans",
-                            subtext: medusa.isSyncing ? "Syncing now..." : "Waiting for connection",
+                            text: String(localized: "\(medusa.pendingSyncCount) Pending Scans"),
+                            subtext: medusa.isSyncing ? String(localized: "Syncing now...") : String(localized: "Waiting for connection"),
                             color: .blue
                         )
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -331,7 +331,7 @@ struct TicketRowView: View {
                         .foregroundStyle(isEffectivelyScanned ? .secondary : .primary)
                         .strikethrough(isEffectivelyScanned)
                 } else {
-                    Text(ticket.hash?.prefix(10) ?? "Unknown")
+                    Text(ticket.hash.map { String($0.prefix(10)) } ?? String(localized: "Unknown"))
                         .font(.system(.headline, design: .monospaced).weight(.bold))
                         .foregroundStyle(isEffectivelyScanned ? .secondary : .primary)
                         .strikethrough(isEffectivelyScanned)
@@ -353,7 +353,7 @@ struct TicketRowView: View {
                 
                 HStack(spacing: 8) {
                     if isEffectivelyScanned {
-                        Text((ticket.isScanned ? "SCANNED" : ticket.status?.uppercased()) ?? "SCANNED")
+                        Text(ticket.isScanned ? String(localized: "SCANNED") : (ticket.status?.uppercased() ?? String(localized: "SCANNED")))
                             .font(.system(.caption, design: .rounded).weight(.bold))
                             .foregroundStyle(.green)
                             .padding(.horizontal, 8)

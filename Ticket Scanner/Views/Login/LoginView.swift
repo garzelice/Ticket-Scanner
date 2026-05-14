@@ -46,7 +46,7 @@ struct LoginView: View {
 		.alert("Error", isPresented: .constant(testError != nil && !authenticating)) {
 			Button("OK") { testError = nil }
 		} message: {
-			Text(testError ?? "Unknown error")
+			Text(testError ?? String(localized: "Unknown error"))
 		}
 	}
 	
@@ -107,18 +107,17 @@ struct LoginView: View {
 			do {
 				try auth.setServerUrl(resolvedHostOrUrl)
 			} catch {
-				testError = "Failed to parse server URL"
-			}
-			
-			if auth.storeName == nil { auth.setStoreName("Medusa Store") }
-			testError = nil
-		case .failure(let error):
-			// Provide user-friendly mapping
-			switch error {
-			case .invalidUrl: testError = "Invalid URL"
-			case .noResponse: testError = "No response from server"
-			case .notMedusa: testError = "Server isn't a Medusa backend"
-			case .authError: testError = "Auth error"
+                testError = String(localized: "Failed to parse server URL")
+            }
+            
+            if auth.storeName == nil { auth.setStoreName("Medusa Store") }
+            testError = nil
+        case .failure(let error):
+            switch error {
+            case .invalidUrl: testError = String(localized: "Invalid URL")
+            case .noResponse: testError = String(localized: "No response from server")
+            case .notMedusa: testError = String(localized: "Server isn't a Medusa backend")
+            case .authError: testError = String(localized: "Auth error")
 			}
 		}
 		print("[Login] testServerUrl result: \(res)")

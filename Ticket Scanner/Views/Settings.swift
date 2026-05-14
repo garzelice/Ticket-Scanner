@@ -52,7 +52,7 @@ struct Settings: View {
 				VStack(alignment: .leading, spacing: 8) {
 					HStack(alignment: .top) {
 						VStack(alignment: .leading, spacing: 4) {
-							Text(auth.storeName ?? "Store")
+							Text(auth.storeName ?? String(localized: "Store"))
 								.font(.headline)
 							Text(url.formatted())
 								.font(.footnote)
@@ -81,7 +81,7 @@ struct Settings: View {
 			if !medusa.salesChannels.isEmpty {
 				Picker("Select Sales Channel", selection: $medusa.selectedSalesChannel) {
 					ForEach(medusa.salesChannels) { salesChannel in
-						Text(salesChannel.name ?? "Name not available")
+						Text(salesChannel.name ?? String(localized: "Name not available"))
 							.tag(salesChannel as SalesChannel?)
 					}
 				}
