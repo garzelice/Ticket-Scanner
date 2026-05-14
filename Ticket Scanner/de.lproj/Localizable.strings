@@ -9,7 +9,6 @@
 "Syncing now..." = "Synchronisiere …";
 "Waiting for connection" = "Warte auf Verbindung";
 "No tickets found." = "Keine Tickets gefunden.";
-"Ticket already scanned" = "Bereits gescannt";
 "Unknown ticket" = "Unbekanntes Ticket";
 "Scanned: %@" = "Gescannt: %@";
 "Revert" = "Rückgängig";
@@ -86,8 +85,10 @@
 
 // ScanConfirmationView
 "Review Ticket" = "Ticket prüfen";
+"Already Scanned" = "Bereits gescannt";
 "Order No." = "Bestellungnummer";
 "Ticket Type" = "Tickettyp";
 "Purchased" = "Gekauft am";
 "Mark as Scanned" = "Als gescannt markieren";
 "Confirm Scan" = "Scan bestätigen";
+"Close" = "Schließen";

@@ -30,8 +30,8 @@ struct ScanView: View {
             print(scannedHash)
             if let ticket = medusa.tickets.first(where: { $0.hash == scannedHash }) {
                 if ticket.isScanned || ticket.status?.lowercased() == "used" || ticket.status?.lowercased() == "scanned" {
-                    scanError = String(localized: "Ticket already scanned")
-                    triggerHapticFeedback(style: .error)
+                    scannedTicketForConfirmation = ticket
+                    triggerHapticFeedback(style: .warning)
                 } else {
                     scannedTicketForConfirmation = ticket
                     triggerHapticFeedback(style: .success)
@@ -415,17 +415,21 @@ struct ScanConfirmationView: View {
         return f
     }()
 
+    var isEffectivelyScanned: Bool {
+        ticket.isScanned || ticket.status?.lowercased() == "used" || ticket.status?.lowercased() == "scanned"
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 20) {
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: isEffectivelyScanned ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
                             .font(.system(size: 56))
-                            .foregroundStyle(.green)
+                            .foregroundStyle(isEffectivelyScanned ? .red : .green)
                             .padding(.top, 32)
 
-                        Text("Review Ticket")
+                        Text(isEffectivelyScanned ? "Already Scanned" : "Review Ticket")
                             .font(.title2.weight(.bold))
 
                         VStack(spacing: 0) {
@@ -452,26 +456,42 @@ struct ScanConfirmationView: View {
                     }
                 }
 
-                Button {
-                    Task {
-                        guard let hash = ticket.hash else { return }
-                        await medusa.markTicketScanned(hash, isOnline: networkMonitor.isOnline, auth: auth)
+                if isEffectivelyScanned {
+                    Button {
                         dismiss()
+                    } label: {
+                        Text("Close")
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                } label: {
-                    Text("Mark as Scanned")
-                        .font(.headline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.accentColor)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                } else {
+                    Button {
+                        Task {
+                            guard let hash = ticket.hash else { return }
+                            await medusa.markTicketScanned(hash, isOnline: networkMonitor.isOnline, auth: auth)
+                            dismiss()
+                        }
+                    } label: {
+                        Text("Mark as Scanned")
+                            .font(.headline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
             }
             .background(Color(UIColor.systemGroupedBackground))
-            .navigationTitle("Confirm Scan")
+            .navigationTitle(isEffectivelyScanned ? "Already Scanned" : "Confirm Scan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
