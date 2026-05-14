@@ -317,6 +317,12 @@ struct TicketRowView: View {
                         .animation(.easeInOut, value: isEmailVisible)
                 }
                 
+                if let ticketTypeName = ticket.ticketTypeName {
+                    Text(ticketTypeName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                
                 HStack(spacing: 8) {
                     if isEffectivelyScanned {
                         Text((ticket.isScanned ? "SCANNED" : ticket.status?.uppercased()) ?? "SCANNED")

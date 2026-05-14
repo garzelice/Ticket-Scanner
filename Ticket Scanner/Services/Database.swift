@@ -41,6 +41,10 @@ extension DependencyValues {
             try db.execute(sql: "ALTER TABLE ticketRecords ADD COLUMN orderDisplayId INTEGER")
         }
         
+        migrator.registerMigration("Add ticketTypeName column") { db in
+            try db.execute(sql: "ALTER TABLE ticketRecords ADD COLUMN ticketTypeName TEXT")
+        }
+
         try migrator.migrate(database)
         defaultDatabase = database
     }
