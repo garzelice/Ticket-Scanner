@@ -65,81 +65,109 @@ struct ScanView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(spacing: 0) {
-                        // Banners section
-                        VStack(spacing: 0) {
-                            if !networkMonitor.isOnline {
-                                StatusBanner(
-                                    icon: "wifi.slash",
-                                    text: "Offline Mode Active",
-                                    subtext: "Scans will sync automatically",
-                                    color: .orange
-                                )
-                            }
-                            
-                            if medusa.pendingSyncCount > 0 {
-                                StatusBanner(
-                                    icon: "arrow.triangle.2.circlepath",
-                                    text: "\(medusa.pendingSyncCount) Pending Scans",
-                                    subtext: medusa.isSyncing ? "Syncing now..." : "Waiting for connection",
-                                    color: .blue
-                                )
-                            }
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 24) {
-                            if let error = scanError {
-                                ErrorBanner(message: error)
-                                    .padding(.top, 16)
-                            } else if let success = statusMessage {
-                                SuccessBanner(message: success)
-                                    .padding(.top, 16)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 16) {
-                                HStack {
-                                    if medusa.isSyncing {
-                                        ProgressView()
-                                    }
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.top, 16)
-                                
-                                if medusa.tickets.isEmpty {
-                                    VStack(spacing: 12) {
-                                        Image(systemName: "ticket.fill")
-                                            .font(.system(size: 40))
-                                            .foregroundStyle(.quaternary)
-                                        Text("No tickets found.")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 40)
-                                } else {
-                                    LazyVStack(spacing: 1) {
-                                        ForEach(medusa.tickets, id: \.id) { ticket in
-                                            TicketRowView(ticket: ticket)
-                                                .padding(.horizontal, 20)
-                                                .padding(.vertical, 16)
-                                                .background(Color(UIColor.secondarySystemGroupedBackground))
-                                        }
-                                    }
-//                                    .background(Color(UIColor.separator).opacity(0.3))
-//                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                    .padding(.horizontal, 16)
-                                }
-                            }
-                        }
-                        .padding(.bottom, 120) // Space for floating scanner button
+                List {
+                    if !networkMonitor.isOnline {
+                        StatusBanner(
+                            icon: "wifi.slash",
+                            text: "Offline Mode Active",
+                            subtext: "Scans will sync automatically",
+                            color: .orange
+                        )
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
+                    
+                    if medusa.pendingSyncCount > 0 {
+                        StatusBanner(
+                            icon: "arrow.triangle.2.circlepath",
+                            text: "\(medusa.pendingSyncCount) Pending Scans",
+                            subtext: medusa.isSyncing ? "Syncing now..." : "Waiting for connection",
+                            color: .blue
+                        )
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                    }
+                    
+                    if let error = scanError {
+                        ErrorBanner(message: error)
+                            .padding(.top, 16)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    } else if let success = statusMessage {
+                        SuccessBanner(message: success)
+                            .padding(.top, 16)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
+                    
+                    if medusa.isSyncing {
+                        HStack {
+                            ProgressView()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                    }
+                    
+                    if medusa.tickets.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "ticket.fill")
+                                .font(.system(size: 40))
+                                .foregroundStyle(.quaternary)
+                            Text("No tickets found.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(medusa.tickets, id: \.id) { ticket in
+                            TicketRowView(ticket: ticket)
+                                .listRowInsets(EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20))
+                                .listRowBackground(Color(UIColor.secondarySystemGroupedBackground))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    if ticket.isScanned || (ticket.status?.lowercased() == "used") || (ticket.status?.lowercased() == "scanned") {
+                                        Button("Revert", systemImage: "arrow.uturn.backward") {
+                                            Task {
+                                                await medusa.markTicketUnscanned(ticket.id)
+                                            }
+                                        }
+                                        .tint(.orange)
+                                    }
+                                }
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    if !ticket.isScanned && ticket.status?.lowercased() != "used" && ticket.status?.lowercased() != "scanned" {
+                                        Button("Check In", systemImage: "checkmark") {
+                                            guard let hash = ticket.hash else { return }
+                                            Task {
+                                                await medusa.markTicketScanned(hash, isOnline: networkMonitor.isOnline, auth: auth)
+                                            }
+                                        }
+                                        .tint(.green)
+                                    }
+                                }
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .background(Color(UIColor.systemGroupedBackground))
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: 120)
                 }
                 .refreshable {
                     await medusa.syncTickets(auth: auth, isOnline: networkMonitor.isOnline)
                     triggerHapticFeedback(style: .success)
                 }
-                .background(Color(UIColor.systemGroupedBackground))
                 
                 // Massive Floating Scan Action
                 VStack {

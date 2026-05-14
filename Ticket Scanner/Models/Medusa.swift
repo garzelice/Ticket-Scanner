@@ -82,6 +82,7 @@ class Medusa {
                     let isScanned = existing?.isScanned ?? false
                     let scannedAt = existing?.scannedAt
                     let needsSync = existing?.needsSync ?? false
+                    let status = existing?.status ?? serverTicket.status
                     
                     try db.execute(
                         sql: """
@@ -93,7 +94,7 @@ class Medusa {
                             ticketId,
                             serverTicket.hash,
                             serverTicket.customer_id,
-                            serverTicket.status,
+                            status,
                             serverTicket.expires_at,
                             serverTicket.created_at,
                             serverTicket.event_id,
@@ -160,6 +161,20 @@ class Medusa {
         
         if isOnline {
             await syncPendingScans(auth: auth, isOnline: isOnline)
+        }
+    }
+
+    func markTicketUnscanned(_ ticketId: String) async {
+        do {
+            try await database.write { db in
+                try db.execute(
+                    sql: "UPDATE ticketRecords SET isScanned = 0, scannedAt = NULL, needsSync = 0, status = 'active' WHERE id = ?",
+                    arguments: [ticketId]
+                )
+            }
+            await loadTickets()
+        } catch {
+            print("Failed to mark ticket unscanned: \(error)")
         }
     }
 
